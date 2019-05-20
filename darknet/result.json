@@ -1,0 +1,13 @@
+[
+{
+ "frame_id":1, 
+ "filename":"/home/arbulgazar/Study/Thesis/data/test/600.jpg", 
+ "objects": [ 
+  {"class_id":2, "name":"red", "relative_coordinates":{"center_x":0.369024, "center_y":0.617450, "width":0.024081, "height":0.046217}, "confidence":0.364351}, 
+  {"class_id":1, "name":"blue", "relative_coordinates":{"center_x":0.133016, "center_y":0.836820, "width":0.066857, "height":0.154301}, "confidence":0.989999}, 
+  {"class_id":1, "name":"blue", "relative_coordinates":{"center_x":0.032469, "center_y":0.692442, "width":0.047640, "height":0.075959}, "confidence":0.569296}, 
+  {"class_id":0, "name":"yellow", "relative_coordinates":{"center_x":0.622484, "center_y":0.709447, "width":0.026801, "height":0.077790}, "confidence":0.710827}, 
+  {"class_id":0, "name":"yellow", "relative_coordinates":{"center_x":0.303029, "center_y":0.630166, "width":0.023631, "height":0.048607}, "confidence":0.357555}
+ ] 
+}
+]
