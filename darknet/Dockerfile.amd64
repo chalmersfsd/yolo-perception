@@ -1,6 +1,6 @@
 # Copyright (C) 2019  Christian Berger
 
-FROM nvidia/cuda:10.0-devel-ubuntu18.04 as builder
+FROM stereolabs/zed:ubuntu1804-cuda10.0-zed2.8-gl as builder
 
 # Set the env variable DEBIAN_FRONTEND to noninteractive
 ENV DEBIAN_FRONTEND noninteractive
