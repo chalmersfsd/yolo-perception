@@ -22,12 +22,6 @@
 #include <memory>
 #include <mutex>
 
-// Global variables to communicate data with the network
-opendlv::cfsdPerception::Cones8 GlobalConeData;
-cv::Mat GlobalFrame;
-bool ConeDataCalculated;
-bool FrameAvailable;
-
 int32_t main(int32_t argc, char **argv) {
     int32_t retCode{1};    
 
@@ -56,7 +50,7 @@ int32_t main(int32_t argc, char **argv) {
 
         cluon::OD4Session od4{cid};
         std::cerr <<  "Start conversation at Opendlv session cid: "<< cid << std::endl;
-       
+           
         // Getting a frame from shared memory.
         // Attach to the shared memory.
         std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
@@ -65,34 +59,29 @@ int32_t main(int32_t argc, char **argv) {
 
             // Endless loop; end the program by pressing Ctrl-C.
             while (!cluon::TerminateHandler::instance().isTerminated.load()) {
-                //cv::Mat img;
-                // If Frame was not already taken by the network
-                if(!FrameAvailable)
+                cv::Mat img;
+                opendlv::cfsdPerception::Cones8 coneData;
+                
+                // Wait for a notification of a new frame.
+                sharedMemory->wait();
+                // Lock the shared memory.
+                sharedMemory->lock();
                 {
-                    // Wait for a notification of a new frame.
-                    sharedMemory->wait();
-
-                    // Lock the shared memory.
-                    sharedMemory->lock();
-                    {
-                        cv::Mat wrapped(HEIGHT, WIDTH, CV_8UC4, sharedMemory->data());
-                        GlobalFrame = wrapped.clone();
-                    }
-                    sharedMemory->unlock();
-
-                    FrameAvailable = true;
-                    //GlobalFrame = img;
+                    cv::Mat wrapped(HEIGHT, WIDTH, CV_8UC4, sharedMemory->data());
+                    img = wrapped.clone();
                 }
-                // if cone data was calculated it is send out
-                if(ConeDataCalculated)
-                {
-                    cluon::data::TimeStamp now{cluon::time::now()};
+                sharedMemory->unlock();
+
+                // Getting the frame processed by CNN tbd
+                
+                //coneData = YoloProcessData(img)
+
+                // create timestamp                
+                cluon::data::TimeStamp now{cluon::time::now()};
                          
-                    //todo: Sender stamp number
-                    od4.send(GlobalConeData, now, 1902);
-
-                    ConeDataCalculated = false;
-                }
+                //todo: Sender stamp number
+                od4.send(coneData, now, 1902);                
+                
             }
         }
         retCode = 0;

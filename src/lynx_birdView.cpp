@@ -59,77 +59,75 @@ int xyz2xy(cv::Mat Q, detection xyz, cv::Point &xy, float radius){
 }
 
 // Take the cone data and prepare to send out, needs to be called after the network is done with the calculation of a frame
-void CalculateCone2xy(detection DeCode[8]){
+opendlv::cfsdPerception::Cones8 CalculateCone2xy(detection* deCode, size_t numberCones) {
     
+    opendlv::cfsdPerception::Cones8 cones; 
     cv::Point xy = {0,0}; 
-    int Number = DeCode[0].num;
 
-    if(Number > 0)
+    if(numberCones > 0)
     {
-        xyz2xy(mtxLeft, DeCode[0], xy, 0.3f);
-        GlobalConeData.x1(xy.x);
-        GlobalConeData.y1(xy.y);
-        GlobalConeData.class1(DeCode[0].classifier);
-        GlobalConeData.confidence1(DeCode[0].confidence);
+        xyz2xy(mtxLeft, deCode[0], xy, 0.3f);
+        cones.x1(xy.x);
+        cones.y1(xy.y);
+        cones.class1(deCode[0].classifier);
+        cones.confidence1(deCode[0].confidence);
     }
-    if(Number > 1)
+    if(numberCones > 1)
     {   
-        xyz2xy(mtxLeft, DeCode[1], xy, 0.3f);        
-        GlobalConeData.x2(xy.x);
-        GlobalConeData.y2(xy.y);
-        GlobalConeData.class2(DeCode[1].classifier);
-        GlobalConeData.confidence2(DeCode[1].confidence);
+        xyz2xy(mtxLeft, deCode[1], xy, 0.3f);        
+        cones.x2(xy.x);
+        cones.y2(xy.y);
+        cones.class2(deCode[1].classifier);
+        cones.confidence2(deCode[1].confidence);
     }
-    if(Number > 2)
+    if(numberCones > 2)
     {
-        xyz2xy(mtxLeft, DeCode[2], xy, 0.3f);
-        GlobalConeData.x3(xy.x);
-        GlobalConeData.y3(xy.y);
-        GlobalConeData.class3(DeCode[2].classifier);
-        GlobalConeData.confidence3(DeCode[2].confidence);
+        xyz2xy(mtxLeft, deCode[2], xy, 0.3f);
+        cones.x3(xy.x);
+        cones.y3(xy.y);
+        cones.class3(deCode[2].classifier);
+        cones.confidence3(deCode[2].confidence);
     }
-    if(Number > 3)
+    if(numberCones > 3)
     {   
-        xyz2xy(mtxLeft, DeCode[3], xy, 0.3f);        
-        GlobalConeData.x4(xy.x);
-        GlobalConeData.y4(xy.y);
-        GlobalConeData.class4(DeCode[3].classifier);
-        GlobalConeData.confidence4(DeCode[3].confidence);
+        xyz2xy(mtxLeft, deCode[3], xy, 0.3f);        
+        cones.x4(xy.x);
+        cones.y4(xy.y);
+        cones.class4(deCode[3].classifier);
+        cones.confidence4(deCode[3].confidence);
     }
-    if(Number > 4)
+    if(numberCones > 4)
     {
-        xyz2xy(mtxLeft, DeCode[4], xy, 0.3f);
-        GlobalConeData.x5(xy.x);
-        GlobalConeData.y5(xy.y);
-        GlobalConeData.class5(DeCode[4].classifier);
-        GlobalConeData.confidence5(DeCode[4].confidence);
+        xyz2xy(mtxLeft, deCode[4], xy, 0.3f);
+        cones.x5(xy.x);
+        cones.y5(xy.y);
+        cones.class5(deCode[4].classifier);
+        cones.confidence5(deCode[4].confidence);
     }
-    if(Number > 5)
+    if(numberCones > 5)
     {   
-        xyz2xy(mtxLeft, DeCode[5], xy, 0.3f);        
-        GlobalConeData.x6(xy.x);
-        GlobalConeData.y6(xy.y);
-        GlobalConeData.class6(DeCode[5].classifier);
-        GlobalConeData.confidence6(DeCode[5].confidence);
+        xyz2xy(mtxLeft, deCode[5], xy, 0.3f);        
+        cones.x6(xy.x);
+        cones.y6(xy.y);
+        cones.class6(deCode[5].classifier);
+        cones.confidence6(deCode[5].confidence);
     }
-    if(Number > 6)
+    if(numberCones > 6)
     {
-        xyz2xy(mtxLeft, DeCode[6], xy, 0.3f);
-        GlobalConeData.x7(xy.x);
-        GlobalConeData.y7(xy.y);
-        GlobalConeData.class7(DeCode[6].classifier);
-        GlobalConeData.confidence7(DeCode[6].confidence);
+        xyz2xy(mtxLeft, deCode[6], xy, 0.3f);
+        cones.x7(xy.x);
+        cones.y7(xy.y);
+        cones.class7(deCode[6].classifier);
+        cones.confidence7(deCode[6].confidence);
     }
-    if(Number > 7)
+    if(numberCones > 7)
     {   
-        xyz2xy(mtxLeft, DeCode[7], xy, 0.3f);        
-        GlobalConeData.x8(xy.x);
-        GlobalConeData.y8(xy.y);
-        GlobalConeData.class8(DeCode[7].classifier);
-        GlobalConeData.confidence8(DeCode[7].confidence);
+        xyz2xy(mtxLeft, deCode[7], xy, 0.3f);        
+        cones.x8(xy.x);
+        cones.y8(xy.y);
+        cones.class8(deCode[7].classifier);
+        cones.confidence8(deCode[7].confidence);
     }
-    
-    // Set Flag to make sure data is sent out via openDlv message
-    ConeDataCalculated = true;
 
+    return cones;
 }
