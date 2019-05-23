@@ -48,7 +48,7 @@ int wait_key_cv(int delay);
 int wait_until_press_key_cv();
 void make_window(char *name, int w, int h, int fullscreen);
 void show_image_cv(image p, const char *name);
-void show_image_cv_ipl(mat_cv *disp, const char *name);
+//void show_image_cv_ipl(mat_cv *disp, const char *name);
 void show_image_mat(mat_cv *mat_ptr, const char *name);
 
 // Video Writer
@@ -95,7 +95,8 @@ void draw_train_loss(mat_cv* img, int img_size, float avg_loss, float max_img_lo
 // Data augmentation
 image image_data_augmentation(mat_cv* mat, int w, int h,
     int pleft, int ptop, int swidth, int sheight, int flip,
-    float jitter, float dhue, float dsat, float dexp);
+    float jitter, float dhue, float dsat, float dexp,
+    int blur, int num_boxes, float *truth);
 
 // Show Anchors
 void show_acnhors(int number_of_boxes, int num_of_clusters, float *rel_width_height_array, model anchors_data, int width, int height);
