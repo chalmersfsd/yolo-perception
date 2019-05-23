@@ -67,66 +67,66 @@ void CalculateCone2xy(detection DeCode[8]){
     if(Number > 0)
     {
         xyz2xy(mtxLeft, DeCode[0], xy, 0.3f);
-        GlobalConeData.x1 = xy.x;
-        GlobalConeData.y1 = xy.y;
-        GlobalConeData.class1 = DeCode[0].classifier;
-        GlobalConeData.confidence1 = DeCode[0].confidence;
+        GlobalConeData.x1(xy.x);
+        GlobalConeData.y1(xy.y);
+        GlobalConeData.class1(DeCode[0].classifier);
+        GlobalConeData.confidence1(DeCode[0].confidence);
     }
     if(Number > 1)
     {   
         xyz2xy(mtxLeft, DeCode[1], xy, 0.3f);        
-        GlobalConeData.x2 = xy.x;
-        GlobalConeData.y2 = xy.y;
-        GlobalConeData.class2 = DeCode[1].classifier;
-        GlobalConeData.confidence2 = DeCode[1].confidence;
+        GlobalConeData.x2(xy.x);
+        GlobalConeData.y2(xy.y);
+        GlobalConeData.class2(DeCode[1].classifier);
+        GlobalConeData.confidence2(DeCode[1].confidence);
     }
     if(Number > 2)
     {
         xyz2xy(mtxLeft, DeCode[2], xy, 0.3f);
-        GlobalConeData.x3 = xy.x;
-        GlobalConeData.y3 = xy.y;
-        GlobalConeData.class3 = DeCode[2].classifier;
-        GlobalConeData.confidence3 = DeCode[2].confidence;
+        GlobalConeData.x3(xy.x);
+        GlobalConeData.y3(xy.y);
+        GlobalConeData.class3(DeCode[2].classifier);
+        GlobalConeData.confidence3(DeCode[2].confidence);
     }
     if(Number > 3)
     {   
         xyz2xy(mtxLeft, DeCode[3], xy, 0.3f);        
-        GlobalConeData.x4 = xy.x;
-        GlobalConeData.y4 = xy.y;
-        GlobalConeData.class4 = DeCode[3].classifier;
-        GlobalConeData.confidence4 = DeCode[3].confidence;
+        GlobalConeData.x4(xy.x);
+        GlobalConeData.y4(xy.y);
+        GlobalConeData.class4(DeCode[3].classifier);
+        GlobalConeData.confidence4(DeCode[3].confidence);
     }
     if(Number > 4)
     {
         xyz2xy(mtxLeft, DeCode[4], xy, 0.3f);
-        GlobalConeData.x5 = xy.x;
-        GlobalConeData.y5 = xy.y;
-        GlobalConeData.class5 = DeCode[4].classifier;
-        GlobalConeData.confidence5 = DeCode[4].confidence;
+        GlobalConeData.x5(xy.x);
+        GlobalConeData.y5(xy.y);
+        GlobalConeData.class5(DeCode[4].classifier);
+        GlobalConeData.confidence5(DeCode[4].confidence);
     }
     if(Number > 5)
     {   
         xyz2xy(mtxLeft, DeCode[5], xy, 0.3f);        
-        GlobalConeData.x6 = xy.x;
-        GlobalConeData.y6 = xy.y;
-        GlobalConeData.class6 = DeCode[5].classifier;
-        GlobalConeData.confidence6 = DeCode[5].confidence;
+        GlobalConeData.x6(xy.x);
+        GlobalConeData.y6(xy.y);
+        GlobalConeData.class6(DeCode[5].classifier);
+        GlobalConeData.confidence6(DeCode[5].confidence);
     }
     if(Number > 6)
     {
         xyz2xy(mtxLeft, DeCode[6], xy, 0.3f);
-        GlobalConeData.x7 = xy.x;
-        GlobalConeData.y7 = xy.y;
-        GlobalConeData.class7 = DeCode[6].classifier;
-        GlobalConeData.confidence7 = DeCode[6].confidence;
+        GlobalConeData.x7(xy.x);
+        GlobalConeData.y7(xy.y);
+        GlobalConeData.class7(DeCode[6].classifier);
+        GlobalConeData.confidence7(DeCode[6].confidence);
     }
     if(Number > 7)
     {   
         xyz2xy(mtxLeft, DeCode[7], xy, 0.3f);        
-        GlobalConeData.x8 = xy.x;
-        GlobalConeData.y8 = xy.y;
-        GlobalConeData.class8 = DeCode[7].classifier;
-        GlobalConeData.confidence8 = DeCode[7].confidence;
+        GlobalConeData.x8(xy.x);
+        GlobalConeData.y8(xy.y);
+        GlobalConeData.class8(DeCode[7].classifier);
+        GlobalConeData.confidence8(DeCode[7].confidence);
     }
     
     // Set Flag to make sure data is sent out via openDlv message
