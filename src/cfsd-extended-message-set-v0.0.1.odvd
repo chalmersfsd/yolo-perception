@@ -1,0 +1,139 @@
+/*
+ * Copyright (C) 2018 Chalmers Formula Student Driverless
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+
+/* This is a oepndlv message set for CFSD extened usages from opendlv-standard-message-set.
+ * The idea is to keep the minium difinitions of this extened msg.
+ * If there are sutible messages avaliable in the standard set, please use those. 
+ * Otherwise, append a new one here.
+ * Naming rules: opendlv.cfsdXXXX.XXXX
+ * Version: v0.0.1
+ */
+
+
+/* For Talking to Lynx Car ONLY 
+ * No used outside Microservices :  chalmersfsd / cfsd-proxy-cangw-* 
+ */
+
+message opendlv.cfsdProxyCANReading.AsStatus [id = 2001] {
+    int accSoC [id = 1];
+    int brakeRear [id = 2];
+    int brakeFront [id = 3];
+    int dlStatus [id = 4];
+    int asMission [id = 5];
+}
+
+message opendlv.cfsdProxyCANReading.WheelSpeedFront [id = 2002]{
+    float wheelFrontRight [id = 1];
+    float wheelFrontLeft [id = 2];
+}
+
+message opendlv.cfsdProxyCANReading.WheelSpeedRare [id = 2003]{
+    float wheelRareRight [id = 1];
+    float wheelRareLeft [id = 2];
+}
+
+message opendlv.cfsdProxyCANReading.PedalRatio [id = 2004]{
+    int throttle [id = 1];
+    int brake [id = 2];
+}
+
+message opendlv.cfsdProxyCANWriting.ASTorque [id = 2005]{
+    int torqueLeft [id = 1];
+    int torqueRight [id = 2];
+}
+
+message opendlv.cfsdProxyCANWriting.ASStatus [id = 2006]{
+    int asRedyToDrive [id = 1];
+    int steeringPosition [id = 2];
+    int rackPosition [id = 3];
+    int pressureService [id = 4];
+    int pressureRegulator [id = 5];
+    int pressureEBSLine [id = 6];
+    int pressureEBSAct [id = 7];
+    int asState [id = 8];
+}
+
+message opendlv.cfsdProxyCANWriting.NMT [id = 2007]{
+    uint8 nodeState [id = 1];
+    uint8 nodeId [id = 2];
+}
+
+message opendlv.cfsdProxyCANReading.RESStatus [id = 2008]{
+    int resStatus [id = 1];
+    int resEStop [id = 2];
+    int resQuality [id = 3];
+    int resButtons [id = 4]; 
+}
+
+message opendlv.cfsdProxyCANReading.Knobs [id = 2009]{
+    int knobL [id = 1];
+    int knobR [id = 2];
+}
+
+/****************/
+
+message opendlv.cfsdProxy.TorqueRequestDual [id = 2010]{
+    int torqueLeft [id = 1];
+    int torqueRight [id = 2];
+}
+
+message opendlv.cfsdPerception.Cones8 [id = 2011]{
+    uint8 count [id = 1];
+
+    float x1 [id = 2];
+    float y1 [id = 3];
+    float confidence1 [id = 4];
+    uint8 class1 [id = 5];
+
+    float x2 [id = 6];
+    float y2 [id = 7];
+    float confidence2 [id = 8];
+    uint8 class2 [id = 9];
+    
+    float x3 [id = 10];
+    float y3 [id = 11];
+    float confidence3 [id = 12];
+    uint8 class3 [id = 13];
+    
+    float x4 [id = 14];
+    float y4 [id = 15];
+    float confidence4 [id = 16];
+    uint8 class4 [id = 17];
+    
+    float x5 [id = 18];
+    float y5 [id = 19];
+    float confidence5 [id = 20];
+    uint8 class5 [id = 21];
+    
+    float x6 [id = 22];
+    float y6 [id = 23];
+    float confidence6 [id = 24];
+    uint8 class6 [id = 25];
+    
+    float x7 [id = 26];
+    float y7 [id = 27];
+    float confidence7 [id = 28];
+    uint8 class7 [id = 29];
+    
+    float x8 [id = 30];
+    float y8 [id = 31];
+    float confidence8 [id = 32];
+    uint8 class8 [id = 33];
+}
+

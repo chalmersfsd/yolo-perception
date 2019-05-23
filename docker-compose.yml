@@ -1,0 +1,9 @@
+version: '2'
+
+services: 
+    cfsd-template:
+        image: chalmersfsd/cfsd-template:v0.0.0
+        network_mode: "host"
+        command: "template --cid=131 --verbose"
+
+#ToBeDone
