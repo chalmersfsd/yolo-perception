@@ -269,10 +269,10 @@ public:
 
 int main(int argc, char *argv[])
 {
-    std::string  names_file = "data/coco.names";
-    std::string  cfg_file = "cfg/yolov3.cfg";
-    std::string  weights_file = "yolov3.weights";
-    std::string filename;
+    std::string  names_file = "data/formula.names";
+    std::string  cfg_file = "cfg/formula_new.cfg";
+    std::string  weights_file = "backup/formula_new_final.weights";
+    std::string filename = "zed_camera";
 
     if (argc > 4) {    //voc.names yolo-voc.cfg yolo-voc.weights test.mp4
         names_file = argv[1];
