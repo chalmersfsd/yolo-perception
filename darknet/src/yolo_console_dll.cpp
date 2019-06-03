@@ -173,45 +173,6 @@ std::vector<bbox_t> get_3d_coordinates(std::vector<bbox_t> bbox_vect, cv::Mat xy
 #pragma comment(lib, "opencv_video" OPENCV_VERSION ".lib")
 #endif    // USE_CMAKE_LIBS
 #endif    // CV_VERSION_EPOCH
-
-
-void draw_boxes(cv::Mat mat_img, std::vector<bbox_t> result_vec, std::vector<std::string> obj_names,
-    int current_det_fps = -1, int current_cap_fps = -1)
-{
-    int const colors[6][3] = { { 1,0,1 },{ 0,0,1 },{ 0,1,1 },{ 0,1,0 },{ 1,1,0 },{ 1,0,0 } };
-
-    for (auto &i : result_vec) {
-        cv::Scalar color = obj_id_to_color(i.obj_id);
-        cv::rectangle(mat_img, cv::Rect(i.x, i.y, i.w, i.h), color, 2);
-        if (obj_names.size() > i.obj_id) {
-            std::string obj_name = obj_names[i.obj_id];
-            if (i.track_id > 0) obj_name += " - " + std::to_string(i.track_id);
-            cv::Size const text_size = getTextSize(obj_name, cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2, 2, 0);
-            int max_width = (text_size.width > i.w + 2) ? text_size.width : (i.w + 2);
-            max_width = std::max(max_width, (int)i.w + 2);
-            //max_width = std::max(max_width, 283);
-            std::string coords_3d;
-            if (!std::isnan(i.z_3d)) {
-                std::stringstream ss;
-                ss << std::fixed << std::setprecision(2) << "x:" << i.x_3d << "m y:" << i.y_3d << "m z:" << i.z_3d << "m ";
-                coords_3d = ss.str();
-                cv::Size const text_size_3d = getTextSize(ss.str(), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, 1, 0);
-                int const max_width_3d = (text_size_3d.width > i.w + 2) ? text_size_3d.width : (i.w + 2);
-                if (max_width_3d > max_width) max_width = max_width_3d;
-            }
-
-            // cv::rectangle(mat_img, cv::Point2f(std::max((int)i.x - 1, 0), std::max((int)i.y - 35, 0)),
-            //     cv::Point2f(std::min((int)i.x + max_width, mat_img.cols - 1), std::min((int)i.y, mat_img.rows - 1)),
-            //     color, CV_FILLED, 8, 0);
-            // putText(mat_img, obj_name, cv::Point2f(i.x, i.y - 16), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2, cv::Scalar(0, 0, 0), 2);
-            // if(!coords_3d.empty()) putText(mat_img, coords_3d, cv::Point2f(i.x, i.y-1), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar(0, 0, 0), 1);
-        }
-    }
-    if (current_det_fps >= 0 && current_cap_fps >= 0) {
-        std::string fps_str = "FPS detection: " + std::to_string(current_det_fps) + "   FPS capture: " + std::to_string(current_cap_fps);
-        putText(mat_img, fps_str, cv::Point2f(10, 20), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.2, cv::Scalar(50, 255, 0), 2);
-    }
-}
 #endif    // OPENCV
 
 
@@ -395,11 +356,11 @@ int main(int argc, char *argv[])
                 send_one_replaceable_object_t<detection_data_t> cap2prepare(sync), cap2draw(sync),
                     prepare2detect(sync), detect2draw(sync), draw2show(sync), draw2write(sync), draw2net(sync);
 
-                std::thread t_cap, t_prepare, t_detect, t_post, t_draw, t_write, t_network;
+                std::thread t_capture, t_prepare, t_detect, t_draw;
 
                 // capture new video-frame
-                if (t_cap.joinable()) t_cap.join();
-                t_cap = std::thread([&]()
+                if (t_capture.joinable()) t_capture.join();
+                t_capture = std::thread([&]()
                 {
                     uint64_t frame_id = 0;
                     detection_data_t detection_data;
@@ -429,7 +390,7 @@ int main(int argc, char *argv[])
                         }
                         cap2prepare.send(detection_data);
                     } while (!detection_data.exit_flag);
-                    std::cout << " t_cap exit \n";
+                    std::cout << " t_capture exit \n";
                 });
 
 
@@ -479,47 +440,24 @@ int main(int argc, char *argv[])
                     std::queue<cv::Mat> track_optflow_queue;
                     detection_data_t detection_data;
                     do {
-
-                        // for Video-file
-                        if (detection_sync) {
-                            detection_data = detect2draw.receive();
-                        }
                         // for Video-camera
-                        else
-                        {
-                            // get new Detection result if present
-                            if (detect2draw.is_object_present()) {
-                                cv::Mat old_cap_frame = detection_data.cap_frame;   // use old captured frame
-                                detection_data = detect2draw.receive();
-                                if (!old_cap_frame.empty()) detection_data.cap_frame = old_cap_frame;
-                            }
-                            // get new Captured frame
-                            else {
-                                std::vector<bbox_t> old_result_vec = detection_data.result_vec; // use old detections
-                                detection_data = cap2draw.receive();
-                                detection_data.result_vec = old_result_vec;
-                            }
+                        // get new Detection result if present
+                        if (detect2draw.is_object_present()) {
+                            cv::Mat old_cap_frame = detection_data.cap_frame;   // use old captured frame
+                            detection_data = detect2draw.receive();
+                            if (!old_cap_frame.empty()) detection_data.cap_frame = old_cap_frame;
                         }
+                        // get new Captured frame
+                        else {
+                            std::vector<bbox_t> old_result_vec = detection_data.result_vec; // use old detections
+                            detection_data = cap2draw.receive();
+                            detection_data.result_vec = old_result_vec;
+                        }
+
 
                         cv::Mat cap_frame = detection_data.cap_frame;
                         cv::Mat draw_frame = detection_data.cap_frame.clone();
                         std::vector<bbox_t> result_vec = detection_data.result_vec;
-
-#ifdef TRACK_OPTFLOW
-                        if (detection_data.new_detection) {
-                            tracker_flow.update_tracking_flow(detection_data.cap_frame, detection_data.result_vec);
-                            while (track_optflow_queue.size() > 0) {
-                                draw_frame = track_optflow_queue.back();
-                                result_vec = tracker_flow.tracking_flow(track_optflow_queue.front(), false);
-                                track_optflow_queue.pop();
-                            }
-                        }
-                        else {
-                            track_optflow_queue.push(cap_frame);
-                            result_vec = tracker_flow.tracking_flow(cap_frame, false);
-                        }
-                        detection_data.new_detection = true;    // to correct kalman filter
-#endif //TRACK_OPTFLOW
 
                         // track ID by using kalman filter
                         if (use_kalman_filter) {
@@ -542,7 +480,7 @@ int main(int argc, char *argv[])
 
                         //small_preview.set(draw_frame, result_vec);
                         //large_preview.set(draw_frame, result_vec);
-                        draw_boxes(draw_frame, result_vec, obj_names, current_fps_det, current_fps_cap);
+                        // draw_boxes(draw_frame, result_vec, obj_names, current_fps_det, current_fps_cap);
                         //show_console_result(result_vec, obj_names, detection_data.frame_id);
                         //large_preview.draw(draw_frame);
                         //small_preview.draw(draw_frame, true);
@@ -552,85 +490,23 @@ int main(int argc, char *argv[])
                         draw2show.send(detection_data);
                         if (send_network) draw2net.send(detection_data);
                         if (output_video.isOpened()) draw2write.send(detection_data);
+                        show_console_result(result_vec, obj_names);
                     } while (!detection_data.exit_flag);
                     std::cout << " t_draw exit \n";
                 });
 
-
-                // write frame to videofile
-                t_write = std::thread([&]()
+                while(true)
                 {
-                    if (output_video.isOpened()) {
-                        detection_data_t detection_data;
-                        cv::Mat output_frame;
-                        do {
-                            detection_data = draw2write.receive();
-                            if(detection_data.draw_frame.channels() == 4) cv::cvtColor(detection_data.draw_frame, output_frame, CV_RGBA2RGB);
-                            else output_frame = detection_data.draw_frame;
-                            output_video << output_frame;
-                        } while (!detection_data.exit_flag);
-                        output_video.release();
-                    }
-                    std::cout << " t_write exit \n";
-                });
-
-                // send detection to the network
-                t_network = std::thread([&]()
-                {
-                    if (send_network) {
-                        detection_data_t detection_data;
-                        do {
-                            detection_data = draw2net.receive();
-
-                            detector.send_json_http(detection_data.result_vec, obj_names, detection_data.frame_id, filename);
-
-                        } while (!detection_data.exit_flag);
-                    }
-                    std::cout << " t_network exit \n";
-                });
-
-
-                // show detection
-                detection_data_t detection_data;
-                do {
-
-                    steady_end = std::chrono::steady_clock::now();
-                    float time_sec = std::chrono::duration<double>(steady_end - steady_start).count();
-                    if (time_sec >= 1) {
-                        current_fps_det = fps_det_counter.load() / time_sec;
-                        current_fps_cap = fps_cap_counter.load() / time_sec;
-                        steady_start = steady_end;
-                        fps_det_counter = 0;
-                        fps_cap_counter = 0;
-                    }
-
-                    detection_data = draw2show.receive();
-                    cv::Mat draw_frame = detection_data.draw_frame;
-
-                    //if (extrapolate_flag) {
-                    //    cv::putText(draw_frame, "extrapolate", cv::Point2f(10, 40), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, cv::Scalar(50, 50, 0), 2);
-                    //}
-
-                    cv::imshow("window name", draw_frame);
-                    int key = cv::waitKey(3);    // 3 or 16ms
-                    if (key == 'f') show_small_boxes = !show_small_boxes;
-                    if (key == 'p') while (true) if (cv::waitKey(100) == 'p') break;
-                    //if (key == 'e') extrapolate_flag = !extrapolate_flag;
-                    if (key == 27) { exit_flag = true;}
-
-                    //std::cout << " current_fps_det = " << current_fps_det << ", current_fps_cap = " << current_fps_cap << std::endl;
-                } while (!detection_data.exit_flag);
+                  // Infinite loop
+                };
                 std::cout << " show detection exit \n";
 
                 cv::destroyWindow("window name");
                 // wait for all threads
-                if (t_cap.joinable()) t_cap.join();
+                if (t_capture.joinable()) t_capture.join();
                 if (t_prepare.joinable()) t_prepare.join();
                 if (t_detect.joinable()) t_detect.join();
-                if (t_post.joinable()) t_post.join();
                 if (t_draw.joinable()) t_draw.join();
-                if (t_write.joinable()) t_write.join();
-                if (t_network.joinable()) t_network.join();
 
                 break;
 
@@ -659,7 +535,7 @@ int main(int argc, char *argv[])
                 std::cout << " Time: " << spent.count() << " sec \n";
 
                 //result_vec = detector.tracking_id(result_vec);    // comment it - if track_id is not required
-                draw_boxes(mat_img, result_vec, obj_names);
+                // draw_boxes(mat_img, result_vec, obj_names);
                 cv::imshow("window name", mat_img);
                 show_console_result(result_vec, obj_names);
                 cv::waitKey(0);
