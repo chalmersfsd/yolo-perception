@@ -42,6 +42,5 @@ typedef struct {
 }detection;
 
 // Function to Calculate 3d Conces Found in Frame into 2d birView coordinates
-void CalculateCone2xy(detection DeCode[8]);
-
+opendlv::cfsdPerception::Cones8 CalculateCone2xy(detection* deCode, size_t numberCones);
 #endif 
