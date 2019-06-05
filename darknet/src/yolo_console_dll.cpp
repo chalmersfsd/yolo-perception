@@ -196,7 +196,7 @@ std::vector<std::string> objects_names_from_file(std::string const filename) {
     return file_lines;
 }
 
-int detectCones(int argc, char *argv[])
+int detectCones(int argc, char *argv[], send_one_replaceable_object_t<detection_data_t> &detection_data)
 {
     std::string  names_file = "data/formula.names";
     std::string  cfg_file = "cfg/formula_new.cfg";
@@ -306,19 +306,6 @@ int detectCones(int argc, char *argv[])
 #else
                     output_video.open(out_videofile, cv::VideoWriter::fourcc('D', 'I', 'V', 'X'), std::max(35, video_fps), frame_size, true);
 #endif
-
-                struct detection_data_t {
-                    cv::Mat cap_frame;
-                    std::shared_ptr<image_t> det_image;
-                    std::vector<bbox_t> result_vec;
-                    cv::Mat draw_frame;
-                    bool new_detection;
-                    uint64_t frame_id;
-                    bool exit_flag;
-                    cv::Mat zed_cloud;
-                    std::queue<cv::Mat> track_optflow_queue;
-                    detection_data_t() : exit_flag(false), new_detection(false) {}
-                };
 
                 const bool sync = detection_sync; // sync data exchange
                 send_one_replaceable_object_t<detection_data_t> cap2prepare(sync), cap2draw(sync),
