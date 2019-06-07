@@ -107,9 +107,9 @@ set(LIBRARIES ${LIBRARIES} ${OpenCV_LIBS})
 
 ################################################################################
 # Link cone detection Library
-add_library(libformula SHARED IMPORTED)
-set_target_properties(libformula PROPERTIES IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/darknet/libformula.so)
-set(LIBRARIES ${LIBRARIES} libformula)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/darknet/include)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/darknet)
+set(LIBRARIES ${LIBRARIES} formula)
 
 ################################################################################
 # Create executable.
