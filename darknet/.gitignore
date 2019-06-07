@@ -4,7 +4,6 @@
 *.csv
 *.out
 *.png
-*.so
 *.exe
 *.dll
 mnist/

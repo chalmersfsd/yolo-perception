@@ -176,8 +176,17 @@ std::vector<bbox_t> get_3d_coordinates(std::vector<bbox_t> bbox_vect, cv::Mat xy
 #endif    // CV_VERSION_EPOCH
 #endif    // OPENCV
 
+std::vector<std::string> objects_names_from_file(std::string const filename) {
+    std::ifstream file(filename);
+    std::vector<std::string> file_lines;
+    if (!file.is_open()) return file_lines;
+    for(std::string line; getline(file, line);) file_lines.push_back(line);
+    return file_lines;
+}
 
-void show_console_result(std::vector<bbox_t> const result_vec, std::vector<std::string> const obj_names, int frame_id = -1) {
+void show_console_result(std::vector<bbox_t> const result_vec, int frame_id)
+{
+    auto obj_names = objects_names_from_file("cfg/formula.names");
     if (frame_id >= 0) std::cout << " Frame: " << frame_id << std::endl;
     for (auto &i : result_vec) {
         if (obj_names.size() > i.obj_id) std::cout << obj_names[i.obj_id] << " - ";
@@ -187,18 +196,9 @@ void show_console_result(std::vector<bbox_t> const result_vec, std::vector<std::
     }
 }
 
-std::vector<std::string> objects_names_from_file(std::string const filename) {
-    std::ifstream file(filename);
-    std::vector<std::string> file_lines;
-    if (!file.is_open()) return file_lines;
-    for(std::string line; getline(file, line);) file_lines.push_back(line);
-    std::cout << "object names loaded \n";
-    return file_lines;
-}
-
-int detectCones(int argc, char *argv[], send_one_replaceable_object_t<detection_data_t> &detection_data)
+int detectCones(int argc, char *argv[], send_one_replaceable_object_t<detection_data_t> &outer_data)
 {
-    std::string  names_file = "data/formula.names";
+    std::string  names_file = "cfg/formula.names";
     std::string  cfg_file = "cfg/formula_new.cfg";
     std::string  weights_file = "backup/formula_new_final.weights";
     std::string filename = "zed_camera";
@@ -444,8 +444,8 @@ int detectCones(int argc, char *argv[], send_one_replaceable_object_t<detection_
                         detection_data.draw_frame = draw_frame;
                         draw2show.send(detection_data);
                         if (send_network) draw2net.send(detection_data);
-                        if (output_video.isOpened()) draw2write.send(detection_data);
-                        show_console_result(result_vec, obj_names);
+                        outer_data.send(detection_data);
+                        // show_console_result(result_vec);
                     } while (!detection_data.exit_flag);
                     std::cout << " t_draw exit \n";
                 });
@@ -474,7 +474,7 @@ int detectCones(int argc, char *argv[], send_one_replaceable_object_t<detection_
                         std::cout << line << std::endl;
                         cv::Mat mat_img = cv::imread(line);
                         std::vector<bbox_t> result_vec = detector.detect(mat_img);
-                        show_console_result(result_vec, obj_names);
+                        show_console_result(result_vec);
                         //draw_boxes(mat_img, result_vec, obj_names);
                         //cv::imwrite("res_" + line, mat_img);
                     }
@@ -492,7 +492,7 @@ int detectCones(int argc, char *argv[], send_one_replaceable_object_t<detection_
                 //result_vec = detector.tracking_id(result_vec);    // comment it - if track_id is not required
                 // draw_boxes(mat_img, result_vec, obj_names);
                 cv::imshow("window name", mat_img);
-                show_console_result(result_vec, obj_names);
+                show_console_result(result_vec);
                 cv::waitKey(0);
             }
 #else   // OPENCV
@@ -501,7 +501,7 @@ int detectCones(int argc, char *argv[], send_one_replaceable_object_t<detection_
             auto img = detector.load_image(filename);
             std::vector<bbox_t> result_vec = detector.detect(img);
             detector.free_image(img);
-            show_console_result(result_vec, obj_names);
+            show_console_result(result_vec);
 #endif  // OPENCV
         }
         catch (std::exception &e) { std::cerr << "exception: " << e.what() << "\n"; getchar(); }

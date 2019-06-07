@@ -106,6 +106,12 @@ include_directories(SYSTEM ${OpenCV_INCLUDE_DIRS})
 set(LIBRARIES ${LIBRARIES} ${OpenCV_LIBS})
 
 ################################################################################
+# Link cone detection Library
+add_library(libformula SHARED IMPORTED)
+set_target_properties(libformula PROPERTIES IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/darknet/libformula.so)
+set(LIBRARIES ${LIBRARIES} libformula)
+
+################################################################################
 # Create executable.
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/lynx_birdView.cpp ${CMAKE_BINARY_DIR}/cluon-complete.hpp ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp ${CMAKE_BINARY_DIR}/cfsd-extended-message-set.hpp)

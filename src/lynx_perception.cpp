@@ -21,9 +21,10 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include "cone_detector.hpp"
 
 int32_t main(int32_t argc, char **argv) {
-    int32_t retCode{1};    
+    int32_t retCode{1};
 
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
     if ( (0 == commandlineArguments.count("name")) ||
@@ -41,7 +42,7 @@ int32_t main(int32_t argc, char **argv) {
     }
     else {
         //const bool VERBOSE{commandlineArguments.count("verbose") != 0};
-        uint16_t cid = static_cast<uint16_t>(std::stoi(commandlineArguments["cid"]));        
+        uint16_t cid = static_cast<uint16_t>(std::stoi(commandlineArguments["cid"]));
 
         // variables for shared memory access
         const std::string NAME{commandlineArguments["name"]};
@@ -50,7 +51,7 @@ int32_t main(int32_t argc, char **argv) {
 
         cluon::OD4Session od4{cid};
         std::cerr <<  "Start conversation at Opendlv session cid: "<< cid << std::endl;
-           
+
         // Getting a frame from shared memory.
         // Attach to the shared memory.
         std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
@@ -61,7 +62,7 @@ int32_t main(int32_t argc, char **argv) {
             while (!cluon::TerminateHandler::instance().isTerminated.load()) {
                 cv::Mat img;
                 opendlv::cfsdPerception::Cones8 coneData;
-                
+
                 // Wait for a notification of a new frame.
                 sharedMemory->wait();
                 // Lock the shared memory.
@@ -73,15 +74,15 @@ int32_t main(int32_t argc, char **argv) {
                 sharedMemory->unlock();
 
                 // Getting the frame processed by CNN tbd
-                
+
                 //coneData = YoloProcessData(img)
 
-                // create timestamp                
+                // create timestamp
                 cluon::data::TimeStamp now{cluon::time::now()};
-                         
+
                 //todo: Sender stamp number
-                od4.send(coneData, now, 1902);                
-                
+                od4.send(coneData, now, 1902);
+
             }
         }
         retCode = 0;

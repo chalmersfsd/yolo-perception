@@ -50,6 +50,7 @@ OBJDIR=./obj/
 ifeq ($(LIBSO), 1)
 LIBNAMESO=libdarknet.so
 FORMULALIB=libformula.so
+FORMULAAPP=formula
 endif
 
 CC=gcc
@@ -127,7 +128,7 @@ endif
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 DEPS = $(wildcard src/*.h) Makefile include/darknet.h
 
-all: obj backup results setchmod $(EXEC) $(LIBNAMESO) $(FORMULALIB)
+all: obj backup results setchmod $(EXEC) $(LIBNAMESO) $(FORMULALIB) $(FORMULAAPP)
 
 ifeq ($(LIBSO), 1)
 CFLAGS+= -fPIC
@@ -137,6 +138,9 @@ $(LIBNAMESO): $(OBJS) include/yolo_v2_class.hpp src/yolo_v2_class.cpp
 
 $(FORMULALIB): $(LIBNAMESO) include/yolo_v2_class.hpp src/yolo_console_dll.cpp
 	$(CPP) -shared -std=c++11 $(COMMON) $(CFLAGS) -o $@ src/yolo_console_dll.cpp $(LDFLAGS) -L ./ -l:$(LIBNAMESO)
+
+$(FORMULAAPP): $(FORMULALIB) $(LIBNAMESO) include/cone_detector.hpp test.cpp
+	$(CPP) -std=c++11 $(COMMON) $(CFLAGS) -o $@ test.cpp $(LDFLAGS) -L ./ -l:$(FORMULALIB)
 endif
 
 $(EXEC): $(OBJS)
@@ -163,4 +167,4 @@ setchmod:
 .PHONY: clean
 
 clean:
-	rm -rf $(OBJS) $(EXEC) $(LIBNAMESO) $(FORMULALIB)
+	rm -rf $(OBJS) $(EXEC) $(FORMULAAPP)

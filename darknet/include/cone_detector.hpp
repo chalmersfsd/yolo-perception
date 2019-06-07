@@ -1,5 +1,11 @@
 #ifndef CONE_DETECTOR
 #define CONE_DETECTOR
+#include <iostream>
+#include <memory>
+#include <thread>
+#include <atomic>
+#include <opencv2/opencv.hpp>
+#include "yolo_v2_class.hpp"
 
 struct detection_data_t {
     cv::Mat cap_frame;
@@ -48,5 +54,6 @@ public:
 };
 
 int detectCones(int argc, char* argv[], send_one_replaceable_object_t<detection_data_t> &detection_data);
+void show_console_result(std::vector<bbox_t> const result_vec, int frame_id = -1);
 
 #endif // CONE_DETECTOR
