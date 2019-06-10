@@ -21,6 +21,7 @@ build_*/
 !build/darknet/YoloWrapper.cs
 .fuse*
 *.weights
+formula
 
 # OS Generated #
 .DS_Store*

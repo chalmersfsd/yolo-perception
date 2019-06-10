@@ -19,18 +19,17 @@
 
 #include <cstdint>
 #include <iostream>
+#include <thread>
 #include <memory>
 #include <mutex>
 #include "cone_detector.hpp"
 
 int32_t main(int32_t argc, char **argv) {
-    int32_t retCode{1};
+    int32_t retCode = 1;
 
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
-    if ( (0 == commandlineArguments.count("name")) ||
-         (0 == commandlineArguments.count("width")) ||
-         (0 == commandlineArguments.count("height")) ||
-         (0 == commandlineArguments.count("cid") )) {
+    if (0 == commandlineArguments.count("cid") )
+    {
         std::cerr << argv[0] << " attaches to a shared memory area containing an ARGB image." << std::endl;
         std::cerr << "Usage:   " << argv[0] << " --name=<name of shared memory area> [--verbose]" << std::endl;
         std::cerr << "         --name:   name of the shared memory area to attach" << std::endl;
@@ -40,51 +39,42 @@ int32_t main(int32_t argc, char **argv) {
         std::cerr << "         --cid:    CID of the OD4Session to send and receive messages" << std::endl;
         std::cerr << "Example: " << argv[0] << " --cid=131 --verbose" << std::endl;
     }
-    else {
+    else
+    {
         //const bool VERBOSE{commandlineArguments.count("verbose") != 0};
         uint16_t cid = static_cast<uint16_t>(std::stoi(commandlineArguments["cid"]));
-
-        // variables for shared memory access
-        const std::string NAME{commandlineArguments["name"]};
-        const uint32_t WIDTH{static_cast<uint32_t>(std::stoi(commandlineArguments["width"]))};
-        const uint32_t HEIGHT{static_cast<uint32_t>(std::stoi(commandlineArguments["height"]))};
 
         cluon::OD4Session od4{cid};
         std::cerr <<  "Start conversation at Opendlv session cid: "<< cid << std::endl;
 
-        // Getting a frame from shared memory.
-        // Attach to the shared memory.
-        std::unique_ptr<cluon::SharedMemory> sharedMemory{new cluon::SharedMemory{NAME}};
-        if (sharedMemory && sharedMemory->valid()) {
-            std::clog << argv[0] << ": Attached to shared memory '" << sharedMemory->name() << " (" << sharedMemory->size() << " bytes)." << std::endl;
 
-            // Endless loop; end the program by pressing Ctrl-C.
-            while (!cluon::TerminateHandler::instance().isTerminated.load()) {
-                cv::Mat img;
-                opendlv::cfsdPerception::Cones8 coneData;
+        send_one_replaceable_object_t<detection_data_t> shared_obj(true);
+        detection_data_t detectionResult;
+        opendlv::cfsdPerception::Cones8 birdviewData;
+        std::thread t_receive = std::thread([&]()
+        {
+          detectCones(1, NULL, shared_obj);
+        });
+        while(!detectionResult.exit_flag || !cluon::TerminateHandler::instance().isTerminated.load())
+        {
+          if (shared_obj.is_object_present())
+          {
+            detectionResult = shared_obj.receive();
+            if (detectionResult.result_vec.size() > 0)
+            {
+                show_console_result(detectionResult.result_vec);
 
-                // Wait for a notification of a new frame.
-                sharedMemory->wait();
-                // Lock the shared memory.
-                sharedMemory->lock();
-                {
-                    cv::Mat wrapped(HEIGHT, WIDTH, CV_8UC4, sharedMemory->data());
-                    img = wrapped.clone();
-                }
-                sharedMemory->unlock();
-
-                // Getting the frame processed by CNN tbd
-
-                //coneData = YoloProcessData(img)
+                // TODO[Felix]: add the birdview here
+                // birdviewData = coolFexlixFunction(detectionResult.result_vec);
 
                 // create timestamp
                 cluon::data::TimeStamp now{cluon::time::now()};
-
-                //todo: Sender stamp number
-                od4.send(coneData, now, 1902);
-
+                od4.send(birdviewData, now, 1902);
             }
+          }
         }
+        if (t_receive.joinable()) t_receive.join();
+
         retCode = 0;
     }
     return retCode;

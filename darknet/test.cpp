@@ -19,8 +19,6 @@ int main()
           show_console_result(data.result_vec);
       }
     }
-    // else
-    //   std::cout << "object in not present" << std::endl;
   }
   if (t_receive.joinable()) t_receive.join();
   return 0;

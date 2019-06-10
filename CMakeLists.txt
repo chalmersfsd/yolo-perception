@@ -109,7 +109,13 @@ set(LIBRARIES ${LIBRARIES} ${OpenCV_LIBS})
 # Link cone detection Library
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/darknet/include)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/darknet)
-set(LIBRARIES ${LIBRARIES} formula)
+set(LIBRARIES ${LIBRARIES} formula darknet)
+
+################################################################################
+# Find ZED camera libs
+find_package(ZED 2 REQUIRED)
+include_directories(${ZED_INCLUDE_DIRS})
+link_directories(${ZED_LIBRARY_DIR})
 
 ################################################################################
 # Create executable.
