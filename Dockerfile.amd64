@@ -35,12 +35,14 @@ RUN make -j4
 
 WORKDIR /opt/sources
 
-RUN rm -rf build && \
+RUN export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH && \
+    ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/local/cuda/lib64/stubs/libcuda.so.1 && \
+    rm -rf build && \
     mkdir build && \
     cd build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp/cfsd-microservice-template-dest .. && \
-    make
-
+    make && \
+    rm /usr/local/cuda/lib64/stubs/libcuda.so.1
 
 # Part to deploy
 FROM alpine:3.7
