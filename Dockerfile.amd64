@@ -15,25 +15,31 @@
 
 # Part to build
 # ToBeDone
-FROM alpine:3.7 AS builder
-MAINTAINER Naichen Wang "naichen@student.chalmers.se"
+FROM stereolabs/zed:ubuntu1804-cuda10.0-zed2.8-gl AS libbuilder
+ENV DEBIAN_FRONTEND noninteractive
 
-RUN apk update && \
-    apk --no-cache add \
-        ca-certificates \
-        cmake \
-        g++ \
-        git \
-        make
+RUN apt-get update -y && \
+   apt-get upgrade -y && \
+   apt-get dist-upgrade -y && \
+   apt-get install -y --no-install-recommends \
+       ca-certificates \
+       cmake \
+       build-essential \
+       libopencv-dev && \
+   apt-get clean
 
 ADD . /opt/sources
+WORKDIR /opt/sources/darknet
+
+RUN make -j4
+
 WORKDIR /opt/sources
 
 RUN rm -rf build && \
     mkdir build && \
     cd build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp/cfsd-microservice-template-dest .. && \
-    make && make install
+    make
 
 
 # Part to deploy

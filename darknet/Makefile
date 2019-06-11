@@ -140,7 +140,7 @@ $(FORMULALIB): $(LIBNAMESO) include/yolo_v2_class.hpp src/yolo_console_dll.cpp
 	$(CPP) -shared -std=c++11 $(COMMON) $(CFLAGS) -o $@ src/yolo_console_dll.cpp $(LDFLAGS) -L ./ -l:$(LIBNAMESO)
 
 $(FORMULAAPP): $(FORMULALIB) $(LIBNAMESO) include/cone_detector.hpp test.cpp
-	$(CPP) -std=c++11 $(COMMON) $(CFLAGS) -o $@ test.cpp $(LDFLAGS) -L ./ -l:$(FORMULALIB)
+	$(CPP) -std=c++11 $(COMMON) $(CFLAGS) -o $@ test.cpp $(LDFLAGS) -L ./ -l:$(FORMULALIB) -l:$(LIBNAMESO)
 endif
 
 $(EXEC): $(OBJS)

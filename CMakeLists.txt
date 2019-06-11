@@ -116,6 +116,14 @@ set(LIBRARIES ${LIBRARIES} formula darknet)
 find_package(ZED 2 REQUIRED)
 include_directories(${ZED_INCLUDE_DIRS})
 link_directories(${ZED_LIBRARY_DIR})
+set(LIBRARIES ${LIBRARIES} ${ZED_LIBS})
+
+################################################################################
+# Find CUDA
+find_package(CUDA ${ZED_CUDA_VERSION} EXACT REQUIRED)
+include_directories(${CUDA_INCLUDE_DIRS})
+link_directories(${CUDA_LIBRARY_DIRS})
+set(LIBRARIES ${LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_CUDART_LIBRARY})
 
 ################################################################################
 # Create executable.
