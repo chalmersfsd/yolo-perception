@@ -18,7 +18,6 @@
  * The data is then processed to generate birdview coordinates of the cone positions.
  */
 #include "lynx_perception.hpp"
-#include <iostream>
 
 //Define intrinsic camera parameters inside matrix (left/right/stereo)
 cv::Mat mtxLeft = (cv::Mat_<double>(3, 3) <<
@@ -69,7 +68,7 @@ void CalculateCone2xy(std::vector<bbox_t> cones){
     
         //Send cone type  
         opendlv::logic::perception::ObjectType coneType;
-        coneType.type((uint32_t)cones[n].m_label);          
+        coneType.type((uint32_t)cones[n].obj_id);          
         coneType.objectId(coneID);
         m_od4.send(coneType,now,0);
          
@@ -83,7 +82,7 @@ void CalculateCone2xy(std::vector<bbox_t> cones){
         m_od4.send(conePos,now,0);
 
         coneID++;
-    }    
+    }
     
     //CFSD19 modification: 
     //send Frame End message to mark a frame's end
