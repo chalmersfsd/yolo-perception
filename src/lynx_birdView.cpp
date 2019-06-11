@@ -57,35 +57,8 @@ int xyz2xy(cv::Mat Q, float x, float y, float z, cv::Point2f &xy, float radius){
 }
 
 // Take the cone data and prepare to send out, needs to be called after the network is done with the calculation of a frame
-void CalculateCone2xy(std::vector<bbox_t> cones){
+cv::Point2f CalculateCone2xy(bbox_t cones){
 
-    cluon::data::TimeStamp now{cluon::time::now()};
-    opendlv::logic::perception::ObjectFrameStart startMsg;     
-    m_od4.send(startMsg,now,0);
-    uint32_t coneID = 0;
-
-    for(uint32_t n = 0; n < cones.size(); n++){
-    
-        //Send cone type  
-        opendlv::logic::perception::ObjectType coneType;
-        coneType.type((uint32_t)cones[n].obj_id);          
-        coneType.objectId(coneID);
-        m_od4.send(coneType,now,0);
-         
-        //Send cone position  
-        opendlv::logic::perception::ObjectPosition conePos;
-        cv::Point2f xy = {0.0, 0.0};
-        xyz2xy(mtxLeft, cones[n].x_3d, cones[n].y_3d, cones[n].z_3d, xy, 0.3f);
-        conePos.x(xy.x);
-        conePos.y(xy.y);         
-        conePos.objectId(coneID);
-        m_od4.send(conePos,now,0);
-
-        coneID++;
-    }
-    
-    //CFSD19 modification: 
-    //send Frame End message to mark a frame's end
-    opendlv::logic::perception::ObjectFrameEnd endMsg;
-    m_od4.send(endMsg,now,0);
+    cv::Point2f xy = {0.0, 0.0};
+    xyz2xy(mtxLeft, cones.x_3d, cones.y_3d, cones.z_3d, xy, 0.3f);
 }

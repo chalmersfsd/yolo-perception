@@ -62,8 +62,39 @@ int32_t main(int32_t argc, char **argv) {
             detectionResult = shared_obj.receive();
             if (detectionResult.result_vec.size() > 0)
             {
-                show_console_result(detectionResult.result_vec);              
-                CalculateCone2xy(detectionResult.result_vec);
+              //Cone ID equals the number of the cone in each frame
+              uint32_t coneID = 0;
+              
+              show_console_result(detectionResult.result_vec);
+              
+              // Calculate 3D coordinates to 2D coordinates and send them out
+              cluon::data::TimeStamp now{cluon::time::now()};
+              opendlv::logic::perception::ObjectFrameStart startMsg;     
+              od4.send(startMsg,now,0);              
+                            
+              for(uint32_t n = 0; n < detectionResult.result_vec.size(); n++){
+                  //Send cone type  
+                  opendlv::logic::perception::ObjectType coneType;
+                  coneType.type((uint32_t)detectionResult.result_vec[n].obj_id);          
+                  coneType.objectId(coneID);
+                  od4.send(coneType,now,0);
+                   
+                  //Send cone position  
+                  opendlv::logic::perception::ObjectPosition conePos;
+                  cv::Point2f xy = {0.0, 0.0};
+                  //Process 3D data
+                  xy = CalculateCone2xy(detectionResult.result_vec[n]);                  
+                  conePos.x(xy.x);
+                  conePos.y(xy.y);         
+                  conePos.objectId(coneID);
+                  od4.send(conePos,now,0);
+                 
+                  coneID++;
+                }
+                
+                //send Frame End message to mark a frame's end
+                opendlv::logic::perception::ObjectFrameEnd endMsg;
+                od4.send(endMsg,now,0);                
             }
           }
         }

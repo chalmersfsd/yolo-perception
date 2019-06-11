@@ -21,6 +21,7 @@
 #include "cluon-complete.hpp"
 #include "opendlv-standard-message-set.hpp"
 #include "cfsd-extended-message-set.hpp"
+#include "../darknet/include/yolo_v2_class.hpp"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -44,5 +45,5 @@ typedef struct {
 }detection;
 
 // Function to Calculate 3d Conces Found in Frame into 2d birView coordinates
-void CalculateCone2xy(std::vector<bbox_t> cones);
+cv::Point2f CalculateCone2xy(bbox_t cones);
 #endif 
