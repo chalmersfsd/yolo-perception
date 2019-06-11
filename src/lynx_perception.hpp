@@ -25,6 +25,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include <iostream>
+
 extern opendlv::cfsdPerception::Cones8 GlobalConeData;
 extern cv::Mat GlobalFrame;
 extern bool ConeDataCalculated;
@@ -42,5 +44,5 @@ typedef struct {
 }detection;
 
 // Function to Calculate 3d Conces Found in Frame into 2d birView coordinates
-opendlv::cfsdPerception::Cones8 CalculateCone2xy(detection* deCode, size_t numberCones);
+void CalculateCone2xy(std::vector<bbox_t> cones);
 #endif 

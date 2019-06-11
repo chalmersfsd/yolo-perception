@@ -62,14 +62,8 @@ int32_t main(int32_t argc, char **argv) {
             detectionResult = shared_obj.receive();
             if (detectionResult.result_vec.size() > 0)
             {
-                show_console_result(detectionResult.result_vec);
-
-                // TODO[Felix]: add the birdview here
-                // birdviewData = coolFexlixFunction(detectionResult.result_vec);
-
-                // create timestamp
-                cluon::data::TimeStamp now{cluon::time::now()};
-                od4.send(birdviewData, now, 1902);
+                show_console_result(detectionResult.result_vec);              
+                CalculateCone2xy(detectionResult.result_vec);
             }
           }
         }

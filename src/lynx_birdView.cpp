@@ -18,6 +18,7 @@
  * The data is then processed to generate birdview coordinates of the cone positions.
  */
 #include "lynx_perception.hpp"
+#include <iostream>
 
 //Define intrinsic camera parameters inside matrix (left/right/stereo)
 cv::Mat mtxLeft = (cv::Mat_<double>(3, 3) <<
@@ -36,98 +37,56 @@ cv::Mat mtxMiddle = (cv::Mat_<double>(3, 3) <<
     0, 0, 1);
 
 // Declaration of local function
-int xyz2xy(cv::Mat Q, cv::Point3f xyz, cv::Point& xy, float radius);
+int xyz2xy(cv::Mat Q, float x, float y, float z, cv::Point2f& xy, float radius);
 
 // Function to process 3d points in a frame into 2d coordinates
-int xyz2xy(cv::Mat Q, detection xyz, cv::Point &xy, float radius){
-  float X = xyz.x_center;
-  float Y = xyz.y_center;
-  float Z = xyz.z_center;
+int xyz2xy(cv::Mat Q, float x, float y, float z, cv::Point2f &xy, float radius){
+
   float Cx = float(-Q.at<double>(0,3));
   float Cy = float(-Q.at<double>(1,3));
   float f = float(Q.at<double>(2,3));
   float a = float(Q.at<double>(3,2));
   float b = float(Q.at<double>(3,3));
-  float d = (f - Z * b ) / ( Z * a);  
+  float d = (f - z * b ) / ( z * a);  
   
   // Why does one calculate everything as floats and stores it as an int?
-  xy.x = int(X * ( d * a + b ) + Cx);
-  xy.y = int(Y * ( d * a + b ) + Cy);
+  xy.x = float(x * ( d * a + b ) + Cx);
+  xy.y = float(y * ( d * a + b ) + Cy);
   
   // Probably not necessary in our case
   return int(radius * ( d * a + b ));
 }
 
 // Take the cone data and prepare to send out, needs to be called after the network is done with the calculation of a frame
-opendlv::cfsdPerception::Cones8 CalculateCone2xy(detection* deCode, size_t numberCones) {
+void CalculateCone2xy(std::vector<bbox_t> cones){
+
+    cluon::data::TimeStamp now{cluon::time::now()};
+    opendlv::logic::perception::ObjectFrameStart startMsg;     
+    m_od4.send(startMsg,now,0);
+    uint32_t coneID = 0;
+
+    for(uint32_t n = 0; n < cones.size(); n++){
     
-    opendlv::cfsdPerception::Cones8 cones; 
-    cv::Point xy = {0,0}; 
+        //Send cone type  
+        opendlv::logic::perception::ObjectType coneType;
+        coneType.type((uint32_t)cones[n].m_label);          
+        coneType.objectId(coneID);
+        m_od4.send(coneType,now,0);
+         
+        //Send cone position  
+        opendlv::logic::perception::ObjectPosition conePos;
+        cv::Point2f xy = {0.0, 0.0};
+        xyz2xy(mtxLeft, cones[n].x_3d, cones[n].y_3d, cones[n].z_3d, xy, 0.3f);
+        conePos.x(xy.x);
+        conePos.y(xy.y);         
+        conePos.objectId(coneID);
+        m_od4.send(conePos,now,0);
 
-    if(numberCones > 0)
-    {
-        xyz2xy(mtxLeft, deCode[0], xy, 0.3f);
-        cones.x1(xy.x);
-        cones.y1(xy.y);
-        cones.class1(deCode[0].classifier);
-        cones.confidence1(deCode[0].confidence);
-    }
-    if(numberCones > 1)
-    {   
-        xyz2xy(mtxLeft, deCode[1], xy, 0.3f);        
-        cones.x2(xy.x);
-        cones.y2(xy.y);
-        cones.class2(deCode[1].classifier);
-        cones.confidence2(deCode[1].confidence);
-    }
-    if(numberCones > 2)
-    {
-        xyz2xy(mtxLeft, deCode[2], xy, 0.3f);
-        cones.x3(xy.x);
-        cones.y3(xy.y);
-        cones.class3(deCode[2].classifier);
-        cones.confidence3(deCode[2].confidence);
-    }
-    if(numberCones > 3)
-    {   
-        xyz2xy(mtxLeft, deCode[3], xy, 0.3f);        
-        cones.x4(xy.x);
-        cones.y4(xy.y);
-        cones.class4(deCode[3].classifier);
-        cones.confidence4(deCode[3].confidence);
-    }
-    if(numberCones > 4)
-    {
-        xyz2xy(mtxLeft, deCode[4], xy, 0.3f);
-        cones.x5(xy.x);
-        cones.y5(xy.y);
-        cones.class5(deCode[4].classifier);
-        cones.confidence5(deCode[4].confidence);
-    }
-    if(numberCones > 5)
-    {   
-        xyz2xy(mtxLeft, deCode[5], xy, 0.3f);        
-        cones.x6(xy.x);
-        cones.y6(xy.y);
-        cones.class6(deCode[5].classifier);
-        cones.confidence6(deCode[5].confidence);
-    }
-    if(numberCones > 6)
-    {
-        xyz2xy(mtxLeft, deCode[6], xy, 0.3f);
-        cones.x7(xy.x);
-        cones.y7(xy.y);
-        cones.class7(deCode[6].classifier);
-        cones.confidence7(deCode[6].confidence);
-    }
-    if(numberCones > 7)
-    {   
-        xyz2xy(mtxLeft, deCode[7], xy, 0.3f);        
-        cones.x8(xy.x);
-        cones.y8(xy.y);
-        cones.class8(deCode[7].classifier);
-        cones.confidence8(deCode[7].confidence);
-    }
-
-    return cones;
+        coneID++;
+    }    
+    
+    //CFSD19 modification: 
+    //send Frame End message to mark a frame's end
+    opendlv::logic::perception::ObjectFrameEnd endMsg;
+    m_od4.send(endMsg,now,0);
 }
