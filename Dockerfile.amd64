@@ -63,4 +63,4 @@ COPY --from=libbuilder /opt/sources/darknet/cfg/formula.names /usr/lib
 COPY --from=libbuilder /opt/sources/darknet/cfg/formula_new.cfg /usr/lib
 COPY --from=libbuilder /opt/sources/darknet/backup/formula_new_final.weights /usr/lib
 COPY --from=libbuilder /usr/local/cuda-10.0/compat /usr/lib
-ENTRYPOINT ["/usr/bin/lynx_perception"]
+ENTRYPOINT ["/usr/bin/lynx_perception", "--cid=219"]

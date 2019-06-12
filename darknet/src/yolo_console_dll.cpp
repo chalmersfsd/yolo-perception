@@ -198,9 +198,9 @@ void show_console_result(std::vector<bbox_t> const result_vec, int frame_id)
 
 int detectCones(int argc, char *argv[], send_one_replaceable_object_t<detection_data_t> &outer_data)
 {
-    std::string  names_file = "cfg/formula.names";
-    std::string  cfg_file = "cfg/formula_new.cfg";
-    std::string  weights_file = "backup/formula_new_final.weights";
+    std::string  names_file = "/usr/lib/formula.names";
+    std::string  cfg_file = "/usr/lib/formula_new.cfg";
+    std::string  weights_file = "/usr/lib/formula_new_final.weights";
     std::string filename = "zed_camera";
 
     if (argc > 4) {    //voc.names yolo-voc.cfg yolo-voc.weights test.mp4
