@@ -40,15 +40,27 @@ RUN export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH && \
     rm -rf build && \
     mkdir build && \
     cd build && \
-    cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp/cfsd-microservice-template-dest .. && \
-    make && \
+    cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/tmp/build-dest .. && \
+    make && make install && \
     rm /usr/local/cuda/lib64/stubs/libcuda.so.1
 
 # Part to deploy
-FROM alpine:3.7
-MAINTAINER Naichen Wang "naichen@student.chalmers.se"
+FROM stereolabs/zed:ubuntu1804-cuda10.0-zed2.8-gl
+MAINTAINER Max "max@student.chalmers.se"
+ENV DEBIAN_FRONTEND=noninteractive
 
+RUN apt-get update -y && \
+   apt-get upgrade -y && \
+   apt-get dist-upgrade -y && \
+   apt-get install -y --no-install-recommends \
+        libopencv-dev
 
 WORKDIR /usr/bin
-COPY --from=builder /tmp/cfsd-microservice-template-dest/bin/cfsd-microservice-template .
-ENTRYPOINT ["/usr/bin/cfsd-microservice-template"]
+COPY --from=libbuilder /tmp/build-dest/bin/lynx_perception .
+COPY --from=libbuilder /opt/sources/darknet/libformula.so /usr/lib
+COPY --from=libbuilder /opt/sources/darknet/libdarknet.so /usr/lib
+COPY --from=libbuilder /opt/sources/darknet/cfg/formula.names /usr/lib
+COPY --from=libbuilder /opt/sources/darknet/cfg/formula_new.cfg /usr/lib
+COPY --from=libbuilder /opt/sources/darknet/backup/formula_new_final.weights /usr/lib
+COPY --from=libbuilder /usr/local/cuda-10.0/compat /usr/lib
+ENTRYPOINT ["/usr/bin/lynx_perception"]

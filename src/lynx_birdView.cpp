@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * This file is there to process the data coming from the image processing of the CNN.
  * The data is then processed to generate birdview coordinates of the cone positions.
  */
@@ -46,12 +46,12 @@ int xyz2xy(cv::Mat Q, float x, float y, float z, cv::Point2f &xy, float radius){
   float f = float(Q.at<double>(2,3));
   float a = float(Q.at<double>(3,2));
   float b = float(Q.at<double>(3,3));
-  float d = (f - z * b ) / ( z * a);  
-  
+  float d = (f - z * b ) / ( z * a);
+
   // Why does one calculate everything as floats and stores it as an int?
   xy.x = float(x * ( d * a + b ) + Cx);
   xy.y = float(y * ( d * a + b ) + Cy);
-  
+
   // Probably not necessary in our case
   return int(radius * ( d * a + b ));
 }
