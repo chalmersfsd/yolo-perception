@@ -30,13 +30,6 @@ int32_t main(int32_t argc, char **argv) {
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
     if (0 == commandlineArguments.count("cid") )
     {
-        std::cerr << argv[0] << " attaches to a shared memory area containing an ARGB image." << std::endl;
-        std::cerr << "Usage:   " << argv[0] << " --name=<name of shared memory area> [--verbose]" << std::endl;
-        std::cerr << "         --name:   name of the shared memory area to attach" << std::endl;
-        std::cerr << "         --width:  width of the frame" << std::endl;
-        std::cerr << "         --height: height of the frame" << std::endl;
-        std::cerr << "Example: " << argv[0] << " --name=img.argb --width=640 --height=480 --verbose" << std::endl;
-        std::cerr << "         --cid:    CID of the OD4Session to send and receive messages" << std::endl;
         std::cerr << "Example: " << argv[0] << " --cid=131 --verbose" << std::endl;
     }
     else
@@ -90,6 +83,9 @@ int32_t main(int32_t argc, char **argv) {
                   od4.send(conePos,now,0);
 
                   coneID++;
+                  // Print out coordinates to console
+                  std::cerr << "x:" << xy.x << ",\ty:" << xy.y << std::endl;
+
                 }
 
                 //send Frame End message to mark a frame's end
