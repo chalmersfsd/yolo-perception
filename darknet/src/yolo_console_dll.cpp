@@ -196,22 +196,14 @@ void show_console_result(std::vector<bbox_t> const result_vec, int frame_id)
     }
 }
 
-int detectCones(int argc, char *argv[], send_one_replaceable_object_t<detection_data_t> &outer_data)
+int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std::string net_names, std::string net_cfg, std::string net_weights)
 {
-    std::string  names_file = "/usr/lib/formula.names";
-    std::string  cfg_file = "/usr/lib/formula_new.cfg";
-    std::string  weights_file = "/usr/lib/formula_new_final.weights";
+    std::string  names_file = net_names;
+    std::string  cfg_file = net_cfg;
+    std::string  weights_file = net_weights;
     std::string filename = "zed_camera";
 
-    if (argc > 4) {    //voc.names yolo-voc.cfg yolo-voc.weights test.mp4
-        names_file = argv[1];
-        cfg_file = argv[2];
-        weights_file = argv[3];
-        filename = argv[4];
-    }
-    else if (argc > 1) filename = argv[1];
-
-    float const thresh = (argc > 5) ? std::stof(argv[5]) : 0.2;
+    float const thresh = 0.2;
 
     Detector detector(cfg_file, weights_file);
 

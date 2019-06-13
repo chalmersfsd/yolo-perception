@@ -28,14 +28,24 @@ int32_t main(int32_t argc, char **argv) {
     int32_t retCode = 1;
 
     auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);
-    if (0 == commandlineArguments.count("cid") )
+    if (argc < 5 ||
+        0 == commandlineArguments.count("cid") || 0 == commandlineArguments.count("net_names_file") ||
+        0 == commandlineArguments.count("net_cfg_file") || 0 == commandlineArguments.count("net_weights_file"))
     {
-        std::cerr << "Example: " << argv[0] << " --cid=131 --verbose" << std::endl;
+        std::cerr << argv[0] << " works with ZED camera directly via USB and posts detections to OD4Session" << std::endl;
+        std::cerr << "Usage:   " << argv[0] << " --cid: CID of the OD4Session to send and receive messages" << std::endl;
+        std::cerr << "         --net_names_file: path to naming file for network" << std::endl;
+        std::cerr << "         --net_cfg_file:  path to configuration file of the network" << std::endl;
+        std::cerr << "         --net_weights_file: path to trained weights file for network" << std::endl;
+        std::cerr << "Example: " << argv[0] << " --cid=131 --net_names_file=/formula.names " <<
+                     "--net_cfg_file=/formula.cfg --net_weights_file=/formula_final.weights --verbose" << std::endl;
     }
     else
     {
-        //const bool VERBOSE{commandlineArguments.count("verbose") != 0};
         uint16_t cid = static_cast<uint16_t>(std::stoi(commandlineArguments["cid"]));
+        std::string network_names = commandlineArguments["net_names_file"];
+        std::string network_cfg = commandlineArguments["net_cfg_file"];
+        std::string network_weights = commandlineArguments["net_weights_file"];
 
         cluon::OD4Session od4{cid};
         std::cerr <<  "Start conversation at Opendlv session cid: "<< cid << std::endl;
@@ -46,7 +56,7 @@ int32_t main(int32_t argc, char **argv) {
         opendlv::cfsdPerception::Cones8 birdviewData;
         std::thread t_receive = std::thread([&]()
         {
-          detectCones(1, NULL, shared_obj);
+          detectCones(shared_obj, network_names, network_cfg, network_weights);
         });
         while(!detectionResult.exit_flag || !cluon::TerminateHandler::instance().isTerminated.load())
         {

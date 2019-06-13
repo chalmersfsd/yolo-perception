@@ -53,7 +53,10 @@ public:
     {}
 };
 
-int detectCones(int argc, char* argv[], send_one_replaceable_object_t<detection_data_t> &detection_data);
+int detectCones(send_one_replaceable_object_t<detection_data_t> &detection_data,
+  std::string net_names = "/usr/lib/formula.names",
+  std::string net_cfg = "/usr/lib/formula_new.cfg",
+  std::string net_weights = "/usr/lib/formula_new_final.weights");
 void show_console_result(std::vector<bbox_t> const result_vec, int frame_id = -1);
 
 #endif // CONE_DETECTOR
