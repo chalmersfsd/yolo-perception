@@ -44,6 +44,7 @@ RUN export LD_LIBRARY_PATH=/usr/local/cuda/lib64/stubs:$LD_LIBRARY_PATH && \
     make && make install && \
     rm /usr/local/cuda/lib64/stubs/libcuda.so.1
 
+################################################################################
 # Part to deploy
 FROM stereolabs/zed:ubuntu1804-cuda10.0-zed2.8-gl
 MAINTAINER Max "max@student.chalmers.se"
@@ -55,12 +56,14 @@ RUN apt-get update -y && \
    apt-get install -y --no-install-recommends \
         libopencv-dev
 
+VOLUME /usr/network_files
 WORKDIR /usr/bin
 COPY --from=libbuilder /tmp/build-dest/bin/lynx_perception .
 COPY --from=libbuilder /opt/sources/darknet/libformula.so /usr/lib
 COPY --from=libbuilder /opt/sources/darknet/libdarknet.so /usr/lib
-COPY --from=libbuilder /opt/sources/darknet/cfg/formula.names /usr/lib
-COPY --from=libbuilder /opt/sources/darknet/cfg/formula_new.cfg /usr/lib
-COPY --from=libbuilder /opt/sources/darknet/backup/formula_new_final.weights /usr/lib
 COPY --from=libbuilder /usr/local/cuda-10.0/compat /usr/lib
+#COPY --from=libbuilder /opt/sources/darknet/cfg/formula.names /usr/lib
+#COPY --from=libbuilder /opt/sources/darknet/cfg/formula_new.cfg /usr/lib
+#COPY --from=libbuilder /opt/sources/darknet/backup/formula_new_final.weights /usr/lib
+
 ENTRYPOINT ["/usr/bin/lynx_perception", "--cid=219"]

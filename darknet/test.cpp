@@ -7,7 +7,7 @@ int main()
   detection_data_t data;
   std::thread t_receive = std::thread([&]()
   {
-    detectCones(1, NULL, shared_obj);
+    detectCones(shared_obj);
   });
   while(!data.exit_flag)
   {

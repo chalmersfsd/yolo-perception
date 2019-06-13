@@ -1,9 +1,11 @@
 version: '2'
 
-services: 
-    cfsd-template:
-        image: chalmersfsd/cfsd-template:v0.0.0
+services:
+    formula_perception:
+        image: formula_perception:latest
+        volumes:
+          - network_folder:/usr/network_files
         network_mode: "host"
-        command: "template --cid=131 --verbose"
+        command: "./lynx_perception --cid=219 --net_names_file=/usr/network_files/formula.names --net_cfg_file=/usr/network_files/formula.cfg --net_weights_file=/usr/network_files/formula_final.weights"
 
 #ToBeDone
