@@ -17,7 +17,7 @@
  * This file is there to process the data coming from the image processing of the CNN.
  * The data is then processed to generate birdview coordinates of the cone positions.
  */
-#include "perception.hpp"
+#include "lynx_perception.hpp"
 
 //Define intrinsic camera parameters inside matrix (left/right)
 cv::Mat mtxLeft = (cv::Mat_<double>(3, 3) <<
