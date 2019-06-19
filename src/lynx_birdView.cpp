@@ -38,8 +38,8 @@ cv::Point2f xyz2xy(cv::Mat Q, float x, float y, float z){
 
   cv::Point2f xy = {0.0, 0.0};
   float Cx = float(Q.at<double>(0,2));
-  float Cy = float(Q.at<double>(1,1));
-  float f = float(Q.at<double>(2,3));
+  float Cy = float(Q.at<double>(1,2));
+  float f = float(Q.at<double>(1,1));
 
   xy.x = (z*x-z*Cx)/f;
   xy.y = (z*y-z*Cy)/f;
