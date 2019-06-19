@@ -42,7 +42,7 @@ cv::Point2f xyz2xy(cv::Mat Q, float x, float y, float z){
   float f = float(Q.at<double>(1,1));
 
   xy.x = (z*x-z*Cx)/f;
-  xy.y = (z*y-z*Cy)/f;
+  xy.y = z;
 
   return xy;
 }
