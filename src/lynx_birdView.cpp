@@ -17,9 +17,9 @@
  * This file is there to process the data coming from the image processing of the CNN.
  * The data is then processed to generate birdview coordinates of the cone positions.
  */
-#include "lynx_perception.hpp"
+#include "perception.hpp"
 
-//Define intrinsic camera parameters inside matrix (left/right/stereo)
+//Define intrinsic camera parameters inside matrix (left/right)
 cv::Mat mtxLeft = (cv::Mat_<double>(3, 3) <<
     349.891, 0, 334.352,
     0, 349.891, 187.937,
@@ -30,35 +30,27 @@ cv::Mat mtxRight = (cv::Mat_<double>(3, 3) <<
     0, 350.112, 189.891,
     0, 0, 1);
 
-cv::Mat mtxMiddle = (cv::Mat_<double>(3, 3) <<
-    350.002, 0, 340.116,
-    0, 350.002, 188.914,
-    0, 0, 1);
-
 // Declaration of local function
-int xyz2xy(cv::Mat Q, float x, float y, float z, cv::Point2f& xy, float radius);
+cv::Point2f xyz2xy(cv::Mat Q, float x, float y, float z);
 
 // Function to process 3d points in a frame into 2d coordinates
-int xyz2xy(cv::Mat Q, float x, float y, float z, cv::Point2f &xy, float radius){
+cv::Point2f xyz2xy(cv::Mat Q, float x, float y, float z){
 
-  float Cx = float(-Q.at<double>(0,3));
-  float Cy = float(-Q.at<double>(1,3));
+  cv::Point2f xy = {0.0, 0.0};
+  float Cx = float(-Q.at<double>(0,2));
+  float Cy = float(-Q.at<double>(1,1));
   float f = float(Q.at<double>(2,3));
-  float a = float(Q.at<double>(3,2));
-  float b = float(Q.at<double>(3,3));
-  float d = (f - z * b ) / ( z * a);
 
-  // Why does one calculate everything as floats and stores it as an int?
-  xy.x = float(x * ( d * a + b ) + Cx);
-  xy.y = float(y * ( d * a + b ) + Cy);
+  xy.x = (z*x-z*Cx)/f;
+  xy.y = (z*y-z*Cy)/f;
 
-  // Probably not necessary in our case
-  return int(radius * ( d * a + b ));
+  return xy;
 }
 
-// Take the cone data and prepare to send out, needs to be called after the network is done with the calculation of a frame
+// Wrapper function to insert calibration matrix
 cv::Point2f CalculateCone2xy(bbox_t cones){
 
-    cv::Point2f xy = {0.0, 0.0};
-    xyz2xy(mtxLeft, cones.x_3d, cones.y_3d, cones.z_3d, xy, 0.3f);
+    cv::Point2f xy = xyz2xy(mtxLeft, cones.x, cones.y, cones.z_3d);
+
+    return xy;
 }
