@@ -9,7 +9,8 @@ services:
         volumes:
           - ./network_folder:/usr/network_files/
         network_mode: "host"
-        command: "lynx_perception --cid=219 --net_names_file=/usr/network_files/formula.names --net_cfg_file=/usr/network_files/formula.cfg --net_weights_file=/usr/network_files/formula_final.weights"
+        privileged: true
+        command: "lynx_perception --cid=219 --net_names_file=/usr/network_files/formula.names --net_cfg_file=/usr/network_files/formula.cfg --net_weights_file=/usr/network_files/formula_final.weights --verbose"
 
 volumes:
     network_folder:

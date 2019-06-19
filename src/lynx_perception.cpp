@@ -51,7 +51,7 @@ int32_t main(int32_t argc, char **argv) {
         std::cerr <<  "Start conversation at Opendlv session cid: "<< cid << std::endl;
 
 
-        send_one_replaceable_object_t<detection_data_t> shared_obj(true);
+        send_one_replaceable_object_t<detection_data_t> shared_obj(false);
         detection_data_t detectionResult;
         opendlv::cfsdPerception::Cones8 birdviewData;
         std::thread t_receive = std::thread([&]()
@@ -59,50 +59,47 @@ int32_t main(int32_t argc, char **argv) {
           detectCones(shared_obj, network_names, network_cfg, network_weights);
         });
         while(!detectionResult.exit_flag || !cluon::TerminateHandler::instance().isTerminated.load())
-        {
-          if (shared_obj.is_object_present())
-          {
-            detectionResult = shared_obj.receive();
-            if (detectionResult.result_vec.size() > 0)
-            {
-              //Cone ID equals the number of the cone in each frame
-              uint32_t coneID = 0;
+	{
+	    detectionResult = shared_obj.receive();
+	    if (detectionResult.result_vec.size() > 0)
+	    {
+	      //Cone ID equals the number of the cone in each frame
+	      uint32_t coneID = 0;
 
-              show_console_result(detectionResult.result_vec);
+	      show_console_result(detectionResult.result_vec);
 
-              // Calculate 3D coordinates to 2D coordinates and send them out
-              cluon::data::TimeStamp now{cluon::time::now()};
-              opendlv::logic::perception::ObjectFrameStart startMsg;
-              od4.send(startMsg,now,0);
+	      // Calculate 3D coordinates to 2D coordinates and send them out
+	      cluon::data::TimeStamp now{cluon::time::now()};
+	      opendlv::logic::perception::ObjectFrameStart startMsg;
+	      od4.send(startMsg,now,0);
 
-              for(uint32_t n = 0; n < detectionResult.result_vec.size(); n++){
-                  //Send cone type
-                  opendlv::logic::perception::ObjectType coneType;
-                  coneType.type((uint32_t)detectionResult.result_vec[n].obj_id);
-                  coneType.objectId(coneID);
-                  od4.send(coneType,now,0);
+	      for(uint32_t n = 0; n < detectionResult.result_vec.size(); n++){
+		  //Send cone type
+		  opendlv::logic::perception::ObjectType coneType;
+		  coneType.type((uint32_t)detectionResult.result_vec[n].obj_id);
+		  coneType.objectId(coneID);
+		  od4.send(coneType,now,0);
 
-                  //Send cone position
-                  opendlv::logic::perception::ObjectPosition conePos;
-                  cv::Point2f xy = {0.0, 0.0};
-                  //Process 3D data
-                  xy = CalculateCone2xy(detectionResult.result_vec[n]);
-                  conePos.x(xy.x);
-                  conePos.y(xy.y);
-                  conePos.objectId(coneID);
-                  od4.send(conePos,now,0);
+		  //Send cone position
+		  opendlv::logic::perception::ObjectPosition conePos;
+		  cv::Point2f xy = {0.0, 0.0};
+		  //Process 3D data
+		  xy = CalculateCone2xy(detectionResult.result_vec[n]);
+		  conePos.x(xy.x);
+		  conePos.y(xy.y);
+		  conePos.objectId(coneID);
+		  od4.send(conePos,now,0);
 
-                  coneID++;
-                  // Print out coordinates to console
-                  std::cerr << "x:" << xy.x << ",\ty:" << xy.y << std::endl;
+		  coneID++;
+		  // Print out coordinates to console
+		  std::cerr << "x:" << xy.x << ",\ty:" << xy.y << std::endl;
 
-                }
+		}
 
-                //send Frame End message to mark a frame's end
-                opendlv::logic::perception::ObjectFrameEnd endMsg;
-                od4.send(endMsg,now,0);
-            }
-          }
+		//send Frame End message to mark a frame's end
+		opendlv::logic::perception::ObjectFrameEnd endMsg;
+		od4.send(endMsg,now,0);
+	    }
         }
         if (t_receive.joinable()) t_receive.join();
 

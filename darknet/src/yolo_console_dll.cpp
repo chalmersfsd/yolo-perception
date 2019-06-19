@@ -100,52 +100,52 @@ cv::Mat slMat2cvMat(sl::Mat &input) {
     case sl::MAT_TYPE_32F_C1:
         cv_type = CV_32FC1;
         break;
-    case sl::MAT_TYPE_32F_C2:
-        cv_type = CV_32FC2;
-        break;
-    case sl::MAT_TYPE_32F_C3:
-        cv_type = CV_32FC3;
-        break;
-    case sl::MAT_TYPE_32F_C4:
-        cv_type = CV_32FC4;
-        break;
-    case sl::MAT_TYPE_8U_C1:
-        cv_type = CV_8UC1;
-        break;
-    case sl::MAT_TYPE_8U_C2:
-        cv_type = CV_8UC2;
-        break;
-    case sl::MAT_TYPE_8U_C3:
-        cv_type = CV_8UC3;
-        break;
-    case sl::MAT_TYPE_8U_C4:
-        cv_type = CV_8UC4;
-        break;
-    default:
-        break;
-    }
-    return cv::Mat(input.getHeight(), input.getWidth(), cv_type, input.getPtr<sl::uchar1>(sl::MEM_CPU));
+case sl::MAT_TYPE_32F_C2:
+cv_type = CV_32FC2;
+break;
+case sl::MAT_TYPE_32F_C3:
+cv_type = CV_32FC3;
+break;
+case sl::MAT_TYPE_32F_C4:
+cv_type = CV_32FC4;
+break;
+case sl::MAT_TYPE_8U_C1:
+cv_type = CV_8UC1;
+break;
+case sl::MAT_TYPE_8U_C2:
+cv_type = CV_8UC2;
+break;
+case sl::MAT_TYPE_8U_C3:
+cv_type = CV_8UC3;
+break;
+case sl::MAT_TYPE_8U_C4:
+cv_type = CV_8UC4;
+break;
+default:
+break;
+}
+return cv::Mat(input.getHeight(), input.getWidth(), cv_type, input.getPtr<sl::uchar1>(sl::MEM_CPU));
 }
 
 cv::Mat zed_capture_rgb(sl::Camera &zed) {
-    sl::Mat left;
-    zed.retrieveImage(left);
-    cv::Mat left_rgb;
-    cv::cvtColor(slMat2cvMat(left), left_rgb, CV_RGBA2RGB);
-    return left_rgb;
+sl::Mat left;
+zed.retrieveImage(left);
+cv::Mat left_rgb;
+cv::cvtColor(slMat2cvMat(left), left_rgb, CV_RGBA2RGB);
+return left_rgb;
 }
 
 cv::Mat zed_capture_3d(sl::Camera &zed) {
-    sl::Mat cur_cloud;
-    zed.retrieveMeasure(cur_cloud, sl::MEASURE_XYZ);
-    return slMat2cvMat(cur_cloud).clone();
+sl::Mat cur_cloud;
+zed.retrieveMeasure(cur_cloud, sl::MEASURE_XYZ);
+return slMat2cvMat(cur_cloud).clone();
 }
 
 static sl::Camera zed; // ZED-camera
 
 #else   // ZED_STEREO
 std::vector<bbox_t> get_3d_coordinates(std::vector<bbox_t> bbox_vect, cv::Mat xyzrgba) {
-    return bbox_vect;
+return bbox_vect;
 }
 #endif  // ZED_STEREO
 
@@ -177,22 +177,22 @@ std::vector<bbox_t> get_3d_coordinates(std::vector<bbox_t> bbox_vect, cv::Mat xy
 #endif    // OPENCV
 
 std::vector<std::string> objects_names_from_file(std::string const filename) {
-    std::ifstream file(filename);
-    std::vector<std::string> file_lines;
-    if (!file.is_open()) return file_lines;
-    for(std::string line; getline(file, line);) file_lines.push_back(line);
-    return file_lines;
+std::ifstream file(filename);
+std::vector<std::string> file_lines;
+if (!file.is_open()) return file_lines;
+for(std::string line; getline(file, line);) file_lines.push_back(line);
+return file_lines;
 }
 
 void show_console_result(std::vector<bbox_t> const result_vec, int frame_id)
 {
-    auto obj_names = objects_names_from_file("cfg/formula.names");
-    if (frame_id >= 0) std::cout << " Frame: " << frame_id << std::endl;
-    for (auto &i : result_vec) {
-        if (obj_names.size() > i.obj_id) std::cout << obj_names[i.obj_id] << " - ";
-        std::cout << "obj_id = " << i.obj_id << ",  x = " << i.x << ", y = " << i.y
-            << ", w = " << i.w << ", h = " << i.h
-            << std::setprecision(3) << ", prob = " << i.prob << std::endl;
+auto obj_names = objects_names_from_file("cfg/formula.names");
+if (frame_id >= 0) std::cout << " Frame: " << frame_id << std::endl;
+for (auto &i : result_vec) {
+if (obj_names.size() > i.obj_id) std::cout << obj_names[i.obj_id] << " - ";
+std::cout << "obj_id = " << i.obj_id << ",  x = " << i.x << ", y = " << i.y
+    << ", w = " << i.w << " x_3d = " << i.x_3d << " y_3d = " << i.y_3d << " z_3d = " << i.z_3d
+    << std::setprecision(3) << ", prob = " << i.prob << std::endl;
     }
 }
 
@@ -221,11 +221,9 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
 #endif  // TRACK_OPTFLOW
 
 
-    while (true)
-    {
         std::cout << "input image or video filename: ";
         if(filename.size() == 0) std::cin >> filename;
-        if (filename.size() == 0) break;
+        //if (filename.size() == 0) break;
 
         try {
 #ifdef OPENCV
@@ -306,7 +304,6 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
                 std::thread t_capture, t_prepare, t_detect, t_draw;
 
                 // capture new video-frame
-                if (t_capture.joinable()) t_capture.join();
                 t_capture = std::thread([&]()
                 {
                     uint64_t frame_id = 0;
@@ -332,9 +329,9 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
                             detection_data.cap_frame = cv::Mat(frame_size, CV_8UC3);
                         }
 
-                        if (!detection_sync) {
-                            cap2draw.send(detection_data);       // skip detection
-                        }
+                        // if (!detection_sync) {
+                        //     cap2draw.send(detection_data);       // skip detection
+                        // }
                         cap2prepare.send(detection_data);
                     } while (!detection_data.exit_flag);
                     std::cout << " t_capture exit \n";
@@ -359,7 +356,6 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
 
 
                 // detection by Yolo
-                if (t_detect.joinable()) t_detect.join();
                 t_detect = std::thread([&]()
                 {
                     std::shared_ptr<image_t> det_image;
@@ -389,17 +385,16 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
                     do {
                         // for Video-camera
                         // get new Detection result if present
-                        if (detect2draw.is_object_present()) {
+                        //if (detect2draw.is_object_present()) {
                             cv::Mat old_cap_frame = detection_data.cap_frame;   // use old captured frame
                             detection_data = detect2draw.receive();
                             if (!old_cap_frame.empty()) detection_data.cap_frame = old_cap_frame;
-                        }
                         // get new Captured frame
-                        else {
-                            std::vector<bbox_t> old_result_vec = detection_data.result_vec; // use old detections
-                            detection_data = cap2draw.receive();
-                            detection_data.result_vec = old_result_vec;
-                        }
+                        // else {
+                        //     std::vector<bbox_t> old_result_vec = detection_data.result_vec; // use old detections
+                        //     detection_data = cap2draw.receive();
+                        //     detection_data.result_vec = old_result_vec;
+                        // }
 
 
                         cv::Mat cap_frame = detection_data.cap_frame;
@@ -437,25 +432,42 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
                         draw2show.send(detection_data);
                         if (send_network) draw2net.send(detection_data);
                         outer_data.send(detection_data);
+			//}
                         // show_console_result(result_vec);
                     } while (!detection_data.exit_flag);
                     std::cout << " t_draw exit \n";
                 });
 
-                while(true)
-                {
-                  // Infinite loop
-                };
+                // while(true)
+                // {
+		// 	std::cout << "we are in infinite while" << std::endl;
+                //   // Infinite loop
+                // };
                 std::cout << " show detection exit \n";
 
                 cv::destroyWindow("window name");
                 // wait for all threads
-                if (t_capture.joinable()) t_capture.join();
-                if (t_prepare.joinable()) t_prepare.join();
-                if (t_detect.joinable()) t_detect.join();
-                if (t_draw.joinable()) t_draw.join();
+                if (t_capture.joinable()) {
+			std::cout << "Joined capture thread 2" << std::endl;
+			t_capture.join();
+		}
+                if (t_prepare.joinable()) 
+		{
+			t_prepare.join();
+			std::cout << "Joined prepare thread 2" << std::endl;
+		}
+                if (t_detect.joinable()) 
+		{
+			t_detect.join();
+			std::cout << "Joined detect thread 2" << std::endl;
+		}
+                if (t_draw.joinable()) 
+		{
+			std::cout << "Joined draw thread 2" << std::endl;
+			t_draw.join();
+		}
 
-                break;
+                //break;
 
             }
             else if (file_ext == "txt") {    // list of image files
@@ -499,7 +511,6 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
         catch (std::exception &e) { std::cerr << "exception: " << e.what() << "\n"; getchar(); }
         catch (...) { std::cerr << "unknown exception \n"; getchar(); }
         filename.clear();
-    }
 
     return 0;
 }
