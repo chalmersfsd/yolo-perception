@@ -1,0 +1,56 @@
+2 Meters
+  Middle
+    Blue: x:-0.0415792,	y:2.08601
+    Yellow: x:-0.0535698,	y:2.08855
+    Red: Not measured
+  right
+    Blue: x:0.953273,	y:2.16512
+    Yellow: x:0.900713,	y:2.08638
+    Red: x:1.03318,	y:2.40916
+  left
+    Yellow: x:-1.04622,	y:2.15329
+    Blue: not detected
+    Red: not detected
+
+4 Meters
+  Left
+    Blue: x:-1.07589,	y:4.18326
+    Yellow: x:-1.05217,	y:4.04607
+    Red: x:-1.07036,	y:4.11602
+  Middle:
+    Blue: x:-0.0800982,	y:4.0185
+    Yellow: x:-0.0937295,	y:4.11259
+    Red: x:-0.0969875,	y:4.25555
+  Right:
+    Blue: x:0.8504,	y:3.76451
+    Yellow: x:0.843217,	y:3.78055
+    Red: x:0.872664,	y:3.86307
+
+6 Meters
+  Left:
+    Blue: x:-1.16763,	y:6.59118
+    Red: x:-0.0915427,	y:6.43971
+    Yellow: not detected
+  Middle:
+    Blue: x:-0.0897663,	y:6.31475
+    Yellow: not detected
+    Red: x:-0.0893475,	y:6.2853
+  Right:
+    Blue: x:0.859804,	y:5.78138
+    Yellow: x:0.880074,	y:5.80608
+    Red: x:0.943497,	y:6.34414
+
+8 Meters
+  Left:
+    Yellow: Not detected
+    Red: Not detected
+    Blue:
+  Middle:
+    Blue: x:-0.149744,	y:8.77037
+    Yellow: Not detected
+    Red: x:-0.178176,	y:8.93901
+  Right:
+    Red: x:0.871468,	y:8.01715
+    Blue: x:0.879291,	y:8.30758
+
+    Yellow: x:0.984855,	y:8.82811

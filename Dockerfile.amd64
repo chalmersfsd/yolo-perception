@@ -28,6 +28,11 @@ RUN apt-get update -y && \
        libopencv-dev && \
    apt-get clean
 
+RUN cd /tmp && \
+   git clone --depth 1 https://chromium.googlesource.com/libyuv/libyuv && \
+   cd libyuv &&\
+   make -f linux.mk libyuv.a CXXFLAGS=-O2\ -fomit-frame-pointer\ -fPIC\ -Iinclude && cp libyuv.a /usr/lib && cd include && cp -r * /usr/include
+
 ADD . /opt/sources
 WORKDIR /opt/sources/darknet
 
@@ -67,5 +72,6 @@ COPY --from=libbuilder /usr/local/cuda-10.0/compat /usr/lib
 #COPY --from=libbuilder /opt/sources/darknet/backup/formula_new_final.weights /usr/lib
 
 COPY --from=libbuilder /opt/sources/SN16163.conf /usr/local/zed/settings/SN16163.conf
+COPY --from=libbuilder /opt/sources/SN22969.conf /usr/local/zed/settings/SN22969.conf
 
-ENTRYPOINT ["/usr/bin/lynx_perception", "--cid=219"]
+ENTRYPOINT ["/usr/bin/lynx_perception"]

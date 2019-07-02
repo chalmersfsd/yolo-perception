@@ -134,23 +134,23 @@ ifeq ($(LIBSO), 1)
 CFLAGS+= -fPIC
 
 $(LIBNAMESO): $(OBJS) include/yolo_v2_class.hpp src/yolo_v2_class.cpp
-	$(CPP) -shared -std=c++11 -fvisibility=hidden -DLIB_EXPORTS $(COMMON) $(CFLAGS) $(OBJS) src/yolo_v2_class.cpp -o $@ $(LDFLAGS)
+	$(CPP) -shared -std=c++14 -fvisibility=hidden -DLIB_EXPORTS $(COMMON) $(CFLAGS) $(OBJS) src/yolo_v2_class.cpp -o $@ $(LDFLAGS)
 
 $(FORMULALIB): $(LIBNAMESO) include/yolo_v2_class.hpp src/yolo_console_dll.cpp
-	$(CPP) -shared -std=c++11 $(COMMON) $(CFLAGS) -o $@ src/yolo_console_dll.cpp $(LDFLAGS) -L ./ -l:$(LIBNAMESO)
+	$(CPP) -shared -std=c++14 $(COMMON) $(CFLAGS) -o $@ src/yolo_console_dll.cpp $(LDFLAGS) -L ./ -l:$(LIBNAMESO) -lyuv
 
 $(FORMULAAPP): $(FORMULALIB) $(LIBNAMESO) include/cone_detector.hpp test.cpp
-	$(CPP) -std=c++11 $(COMMON) $(CFLAGS) -o $@ test.cpp $(LDFLAGS) -L ./ -l:$(FORMULALIB) -l:$(LIBNAMESO)
+	$(CPP) -std=c++14 $(COMMON) $(CFLAGS) -o $@ test.cpp $(LDFLAGS) -L ./ -l:$(FORMULALIB) -l:$(LIBNAMESO)
 endif
 
 $(EXEC): $(OBJS)
-	$(CPP) -std=c++11 $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+	$(CPP) -std=c++14 $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(OBJDIR)%.o: %.c $(DEPS)
 	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
 
 $(OBJDIR)%.o: %.cpp $(DEPS)
-	$(CPP) -std=c++11 $(COMMON) $(CFLAGS) -c $< -o $@
+	$(CPP) -std=c++14 $(COMMON) $(CFLAGS) -c $< -o $@
 
 $(OBJDIR)%.o: %.cu $(DEPS)
 	$(NVCC) $(ARCH) $(COMMON) --compiler-options "$(CFLAGS)" -c $< -o $@

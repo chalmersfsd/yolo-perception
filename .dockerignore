@@ -1,0 +1,6 @@
+.git
+logfiles/
+darknet/scripts
+darknet/build/darknet/x64/data
+data/
+Yolo_mark/

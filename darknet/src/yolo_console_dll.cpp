@@ -9,6 +9,7 @@
 #include <atomic>
 #include <mutex>         // std::mutex, std::unique_lock
 #include <cmath>
+#include <libyuv.h>
 
 
 // It makes sense only for video-Camera (not for video-File)
@@ -22,6 +23,7 @@
 
 #include "yolo_v2_class.hpp"    // imported functions from DLL
 #include "cone_detector.hpp"
+#include "cluon-complete.hpp"
 
 #ifdef OPENCV
 #ifdef ZED_STEREO
@@ -34,6 +36,11 @@ float getMedian(std::vector<float> &v) {
     size_t n = v.size() / 2;
     std::nth_element(v.begin(), v.begin() + n, v.end());
     return v[n];
+}
+
+double getConeDistance(bbox_t detection)
+{
+  double coneDistance = 0.0;
 }
 
 std::vector<bbox_t> get_3d_coordinates(std::vector<bbox_t> bbox_vect, cv::Mat xyzrgba)
@@ -128,17 +135,17 @@ return cv::Mat(input.getHeight(), input.getWidth(), cv_type, input.getPtr<sl::uc
 }
 
 cv::Mat zed_capture_rgb(sl::Camera &zed) {
-sl::Mat left;
-zed.retrieveImage(left);
-cv::Mat left_rgb;
-cv::cvtColor(slMat2cvMat(left), left_rgb, CV_RGBA2RGB);
-return left_rgb;
+  sl::Mat left;
+  zed.retrieveImage(left);
+  cv::Mat left_rgb;
+  cv::cvtColor(slMat2cvMat(left), left_rgb, CV_RGBA2RGB);
+  return left_rgb;
 }
 
 cv::Mat zed_capture_3d(sl::Camera &zed) {
-sl::Mat cur_cloud;
-zed.retrieveMeasure(cur_cloud, sl::MEASURE_XYZ);
-return slMat2cvMat(cur_cloud).clone();
+  sl::Mat cur_cloud;
+  zed.retrieveMeasure(cur_cloud, sl::MEASURE_XYZ);
+  return slMat2cvMat(cur_cloud).clone();
 }
 
 static sl::Camera zed; // ZED-camera
@@ -214,6 +221,15 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
     bool const use_kalman_filter = false;   // true - for stationary camera
 
     bool detection_sync = true;             // true - for video-file
+
+    // openDLV stuff for shared memory
+    int frame_width = 2560;
+    int frame_height = 720;
+    std::unique_ptr<cluon::SharedMemory> sharedMemoryI420(new cluon::SharedMemory{"video0.i420", frame_width * frame_height * 3/2});
+    if (!sharedMemoryI420 || !sharedMemoryI420->valid()) {
+        std::cerr << "[opendlv-device-camera-opencv]: Failed to create shared memory '" << "video0.i420" << "'." << std::endl;
+    }
+
 #ifdef TRACK_OPTFLOW    // for slow GPU
     detection_sync = false;
     Tracker_optflow tracker_flow;
@@ -253,8 +269,8 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
 #ifdef ZED_STEREO
                 sl::InitParameters init_params;
                 init_params.depth_minimum_distance = 0.5;
-                init_params.depth_mode = sl::DEPTH_MODE_MEDIUM;
-                init_params.camera_resolution = sl::RESOLUTION_VGA;
+                init_params.depth_mode = sl::DEPTH_MODE_QUALITY;
+                init_params.camera_resolution = sl::RESOLUTION_HD720;
                 init_params.coordinate_units = sl::UNIT_METER;
                 //init_params.sdk_cuda_ctx = (CUcontext)detector.get_cuda_context();
                 init_params.sdk_gpu_id = detector.cur_gpu_id;
@@ -315,6 +331,18 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
                             while (zed.grab() != sl::SUCCESS) std::this_thread::sleep_for(std::chrono::milliseconds(2));
                             detection_data.cap_frame = zed_capture_rgb(zed);
                             detection_data.zed_cloud = zed_capture_3d(zed);
+
+                            cluon::data::TimeStamp ts{cluon::time::now()};
+                            sharedMemoryI420->lock();
+                            sharedMemoryI420->setTimeStamp(ts);
+                            {
+                              libyuv::RGB24ToI420(reinterpret_cast<uint8_t*>(detection_data.zed_cloud.data), frame_width * 3 /* 3*WIDTH for RGB24*/,
+                                                  reinterpret_cast<uint8_t*>(sharedMemoryI420->data()), frame_width,
+                                                  reinterpret_cast<uint8_t*>(sharedMemoryI420->data()+(frame_width * frame_height)), frame_width/2,
+                                                  reinterpret_cast<uint8_t*>(sharedMemoryI420->data()+(frame_width * frame_height + ((frame_width * frame_height) >> 2))),
+                                                  frame_width/2, frame_width, frame_height);
+                            }
+                            sharedMemoryI420->unlock();
                         }
                         else
 #endif   // ZED_STEREO
@@ -451,17 +479,17 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
 			std::cout << "Joined capture thread 2" << std::endl;
 			t_capture.join();
 		}
-                if (t_prepare.joinable()) 
+                if (t_prepare.joinable())
 		{
 			t_prepare.join();
 			std::cout << "Joined prepare thread 2" << std::endl;
 		}
-                if (t_detect.joinable()) 
+                if (t_detect.joinable())
 		{
 			t_detect.join();
 			std::cout << "Joined detect thread 2" << std::endl;
 		}
-                if (t_draw.joinable()) 
+                if (t_draw.joinable())
 		{
 			std::cout << "Joined draw thread 2" << std::endl;
 			t_draw.join();

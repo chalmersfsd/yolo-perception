@@ -18,6 +18,10 @@
  * The data is then processed to generate birdview coordinates of the cone positions.
  */
 #include "lynx_perception.hpp"
+cv::Mat newCalibrationLeft = (cv::Mat_<double>(3,3) <<
+349.833, 0, 316.973,
+0, 349.833, 183.859,
+0, 0, 1);
 
 //Define intrinsic camera parameters inside matrix (left/right)
 cv::Mat mtxLeft = (cv::Mat_<double>(3, 3) <<
@@ -50,7 +54,7 @@ cv::Point2f xyz2xy(cv::Mat Q, float x, float y, float z){
 // Wrapper function to insert calibration matrix
 cv::Point2f CalculateCone2xy(bbox_t cones){
 
-    cv::Point2f xy = xyz2xy(mtxLeft, cones.x, cones.y, cones.z_3d);
+    cv::Point2f xy = xyz2xy(newCalibrationLeft, cones.x, cones.y, cones.z_3d);
 
     return xy;
 }
