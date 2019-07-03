@@ -38,11 +38,6 @@ float getMedian(std::vector<float> &v) {
     return v[n];
 }
 
-double getConeDistance(bbox_t detection)
-{
-  double coneDistance = 0.0;
-}
-
 std::vector<bbox_t> get_3d_coordinates(std::vector<bbox_t> bbox_vect, cv::Mat xyzrgba)
 {
     bool valid_measure;
@@ -331,18 +326,6 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
                             while (zed.grab() != sl::SUCCESS) std::this_thread::sleep_for(std::chrono::milliseconds(2));
                             detection_data.cap_frame = zed_capture_rgb(zed);
                             detection_data.zed_cloud = zed_capture_3d(zed);
-
-                            cluon::data::TimeStamp ts{cluon::time::now()};
-                            sharedMemoryI420->lock();
-                            sharedMemoryI420->setTimeStamp(ts);
-                            {
-                              libyuv::RGB24ToI420(reinterpret_cast<uint8_t*>(detection_data.zed_cloud.data), frame_width * 3 /* 3*WIDTH for RGB24*/,
-                                                  reinterpret_cast<uint8_t*>(sharedMemoryI420->data()), frame_width,
-                                                  reinterpret_cast<uint8_t*>(sharedMemoryI420->data()+(frame_width * frame_height)), frame_width/2,
-                                                  reinterpret_cast<uint8_t*>(sharedMemoryI420->data()+(frame_width * frame_height + ((frame_width * frame_height) >> 2))),
-                                                  frame_width/2, frame_width, frame_height);
-                            }
-                            sharedMemoryI420->unlock();
                         }
                         else
 #endif   // ZED_STEREO
@@ -356,6 +339,19 @@ int detectCones(send_one_replaceable_object_t<detection_data_t> &outer_data, std
                             detection_data.exit_flag = true;
                             detection_data.cap_frame = cv::Mat(frame_size, CV_8UC3);
                         }
+
+                        cluon::data::TimeStamp ts{cluon::time::now()};
+                        sharedMemoryI420->lock();
+                        sharedMemoryI420->setTimeStamp(ts);
+                        {
+                          libyuv::YUY2ToI420(reinterpret_cast<uint8_t*>(detection_data.zed_cloud.data), frame_width * 2 /* 2*WIDTH for YUYV 422*/,
+                                             reinterpret_cast<uint8_t*>(sharedMemoryI420->data()), frame_width,
+                                             reinterpret_cast<uint8_t*>(sharedMemoryI420->data()+(frame_width * frame_height)), frame_width/2,
+                                             reinterpret_cast<uint8_t*>(sharedMemoryI420->data()+(frame_width * frame_height + ((frame_width * frame_height) >> 2))), frame_width/2,
+                                             frame_width, frame_height);
+                        }
+                        sharedMemoryI420->unlock();
+                        sharedMemoryI420->notifyAll();
 
                         // if (!detection_sync) {
                         //     cap2draw.send(detection_data);       // skip detection
